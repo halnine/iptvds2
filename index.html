@@ -154,8 +154,11 @@
     </button>
     <input type="text" id="search-input" placeholder="Search channel name"
            class="shadow appearance-none border rounded w-auto py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm">
-    <input type="text" id="group-filter-input" placeholder="Filter by group"
-           class="shadow appearance-none border rounded w-auto py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm">
+<input type="text" id="group-filter-input" placeholder="Filter by group"
+       class="shadow appearance-none border rounded w-auto py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
+       list="group-suggestions">
+<datalist id="group-suggestions"></datalist>
+
     <button id="undo-button"
             class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded text-sm">
       Undo
@@ -200,9 +203,15 @@
       <tbody id="playlist-table-body">
       </tbody>
     </table>
+
   </div>
 
+
+
+
 <script>
+
+
   const fileInput = document.getElementById('file-input');
   const loadButton = document.getElementById('load-button');
   const searchInput = document.getElementById('search-input');
@@ -218,10 +227,15 @@
   const deletedChannelsSpan = document.getElementById('deleted-channels');
   const editedChannelsSpan = document.getElementById('edited-channels');
   const currentFileSpan = document.getElementById('current-file');
+  
 
 loadButton.addEventListener('click', () => {
   fileInput.click();
+  updateGroupSuggestions();
+
 });
+
+
 
   let allChannels = [];
   let visibleChannels = [];
@@ -229,6 +243,8 @@ loadButton.addEventListener('click', () => {
   let editedChannels = 0;
   let history = [];
   let currentFile = null;
+  
+
 
   // --- Utility Functions ---
 
@@ -346,12 +362,14 @@ function findDuplicateUrls() {
           undoButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-700');
 
           setTimeout(() => {
-              const previousState = history.pop();
-              allChannels = previousState.allChannels;
-              deletedChannels = previousState.deletedChannels;
-              applyFilters();
-              renderTable(visibleChannels);
-              updateStatus();
+const previousState = history.pop();
+allChannels = previousState.allChannels;
+deletedChannels = previousState.deletedChannels;
+editedChannels = allChannels.filter(channel => channel.edited).length;
+applyFilters();
+renderTable(visibleChannels);
+updateStatus();
+
               setTimeout(() => {
                   undoButton.textContent = "Undo";
                   undoButton.classList.remove('bg-black');
@@ -380,6 +398,23 @@ function findDuplicateUrls() {
       renderTable(visibleChannels);
       updateStatus();
   }
+  
+function updateGroupSuggestions() {
+    const groupSet = new Set();
+    allChannels.forEach(channel => {
+        if (channel.groupTitle) groupSet.add(channel.groupTitle);
+    });
+    
+    const dataList = document.getElementById('group-suggestions');
+    dataList.innerHTML = ''; // Clear previous options
+    groupSet.forEach(group => {
+        const option = document.createElement('option');
+        option.value = group;
+        dataList.appendChild(option);
+    });
+}
+
+
 
 function applyFilters() {
     const searchTerm = searchInput.value.toLowerCase();
@@ -454,6 +489,7 @@ function exportM3UContent(channels) {
   });
   return m3uContent;
 }
+
 
 
   function renderTable(channels) {
@@ -589,11 +625,15 @@ function exportM3UContent(channels) {
       // Group cell with inline editing
       const groupCell = row.insertCell();
       groupCell.classList.add('py-2', 'px-3', 'group-cell');
-      const groupInput = document.createElement('input');
+	  
+	  const groupInput = document.createElement('input');
       groupInput.type = 'text';
       groupInput.value = channel.groupTitle;
       groupInput.classList.add('shadow-inner', 'border', 'rounded', 'py-1', 'px-2', 'text-gray-700', 'leading-tight', 'focus:outline-none', 'focus:shadow-outline', 'text-sm', 'w-full');
+	  groupInput.setAttribute('list', 'group-suggestions');
+
       groupInput.addEventListener('focus', () => {
+    groupInput.select();
         row.classList.add('editing-row');
         channel.isEditing = true;
       });
@@ -730,7 +770,8 @@ cancelDeleteButton.addEventListener('click', () => {
           }
         }
         visibleChannels = [...allChannels];
-		
+		updateGroupSuggestions();
+
         renderTable(visibleChannels);
 		populateCountryDropdown();
 
@@ -754,6 +795,7 @@ cancelDeleteButton.addEventListener('click', () => {
   
   searchInput.addEventListener('input', filterChannels);
   groupFilterInput.addEventListener('input', applyFilters);
+  groupFilterInput.setAttribute('list', 'group-suggestions');
   duplicatesButton.addEventListener('click', findDuplicateUrls);
   undoButton.addEventListener('click', restoreState);
   
@@ -808,6 +850,8 @@ showingSelectedToDelete = true;
         } else {
           visibleChannels = [...allChannels];
           renderTable(visibleChannels);
+		  updateGroupSuggestions();
+
         }
 updateStatus();
 deleteSelectedButton.textContent = 'Delete Selected';
