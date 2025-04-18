@@ -381,18 +381,28 @@ function findDuplicateUrls() {
       updateStatus();
   }
 
-  function applyFilters() {
-      const searchTerm = searchInput.value.toLowerCase();
-      const groupTerm = groupFilterInput.value.toLowerCase();
-      visibleChannels = allChannels.filter(channel => {
-          const nameMatch = channel.name.toLowerCase().includes(searchTerm);
-          const groupMatch = channel.groupTitle.toLowerCase().includes(groupTerm);
-          // Country filtering is handled via the country filter's own listener
-          return nameMatch && groupMatch;
-      });
-      renderTable(visibleChannels);
-      updateStatus();
-  }
+function applyFilters() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const groupTerm = groupFilterInput.value.toLowerCase();
+    const countryFilter = document.getElementById('country-filter').value;
+    
+    visibleChannels = allChannels.filter(channel => {
+        const nameMatch = channel.name.toLowerCase().includes(searchTerm);
+        const groupMatch = channel.groupTitle.toLowerCase().includes(groupTerm);
+        let countryMatch = true; // Default to true (if no filter selected)
+        if (countryFilter === "BLANK") {
+            countryMatch = !channel.tvgId.match(/([A-Za-z]{2})$/);
+        } else if (countryFilter !== "") {
+            const match = channel.tvgId.match(/([A-Za-z]{2})$/);
+            countryMatch = match && match[1].toUpperCase() === countryFilter.toUpperCase();
+        }
+        return nameMatch && groupMatch && countryMatch;
+    });
+
+    renderTable(visibleChannels);
+    updateStatus();
+}
+
 
 function applyCountryFilter() {
   const countryFilter = document.getElementById('country-filter');
@@ -546,6 +556,7 @@ function exportM3UContent(channels) {
           row.classList.add('edited');
           autosave();
         }
+		autosave();
       });
 
       // Name cell with inline editing
@@ -570,6 +581,8 @@ function exportM3UContent(channels) {
           row.classList.add('edited');
           autosave();
         }
+		applyFilters();
+
       });
       nameCell.appendChild(nameInput);
 
@@ -599,6 +612,8 @@ function exportM3UContent(channels) {
           updateStatus();
           autosave();
         }
+		applyFilters();
+
       });
       groupCell.appendChild(groupInput);
 
