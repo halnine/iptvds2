@@ -15,41 +15,38 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-
-
   <style>
 @media (max-width: 768px) {
     th, td {
-        padding: 0.2rem; /* Further reduce padding */
-        font-size: 13px; /* Slightly smaller font for better fit */
+        padding: 0.1rem; /* Further reduce padding */
+        font-size: 12px; /* Make text slightly smaller */
     }
 
     th:first-child, td:first-child { /* Checkboxes */
-        width: 18px; /* Reduce checkbox column size */
+        width: 12px; /* Reduce checkbox size */
     }
 
     th:nth-child(2), td:nth-child(2) { /* Channel number */
-        width: 25px; /* Shrink numbering column */
+        width: 20px; /* Shrink numbering column */
     }
 
     .name-cell, .group-cell {
-        min-width: 180px; /* Slightly wider input fields */
-        max-width: 300px; /* Ensures readability */
+        min-width: 160px; /* Compact field width */
+        max-width: 260px;
     }
 
     .logo-cell {
-        width: 40px; /* Compact logo size */
+        width: 35px; /* Reduce logo cell width */
     }
 
     th:nth-child(7), td:nth-child(7) { /* Country Filter Column */
-        width: 50px;
+        width: 45px;
     }
 
     th:last-child, td:last-child { /* Copy URL Column */
-        width: 70px;
+        width: 65px;
     }
 }
-
 
 	      .hidden {
       display: none;
@@ -118,7 +115,6 @@
     z-index: 1; /* Lower priority */
 }
 
-
 @media (max-width: 768px) {
 #popup-container {
     display: none; /* Make sure it remains hidden */
@@ -132,7 +128,6 @@
     align-items: center;
     z-index: 5000;
 }
-
 
     #popup-player {
         width: 100%;
@@ -269,11 +264,14 @@
   
 
 loadButton.addEventListener('click', () => {
-  fileInput.click();
-  updateGroupSuggestions();
-
+    const fileInput = document.getElementById('file-input');
+    if (!fileInput) {
+        console.error("File input element not found!");
+        return;
+    }
+    fileInput.click(); // Open file dialog
+    updateGroupSuggestions();
 });
-
 
 
   let allChannels = [];
@@ -600,57 +598,36 @@ playButton.classList.add('bg-indigo-500', 'hover:bg-indigo-700', 'text-white', '
 // Play button functionality
 playButton.addEventListener('click', () => {
     const popupContainer = document.getElementById('popup-container');
-    if (!popupContainer) {
-        console.error("Popup container not found!");
-        return;
-    }
-
-    popupContainer.style.display = 'flex'; // Ensure it loads when clicking play
-});
-
+    const player = document.getElementById('popup-player');
+    const streamUrl = channel.url; // Ensure you retrieve the correct stream URL
 
     if (!popupContainer || !player) {
         console.error("Popup elements not found!");
         return;
     }
 
-    // Force interaction before playing (fixes mobile restrictions)
+    // Make popup visible
+    popupContainer.style.display = 'flex';
+    popupContainer.classList.remove('hidden');
+
+    // Force interaction before playing (fixes mobile autoplay restrictions)
     player.addEventListener("canplay", () => {
         player.play();
     }, { once: true });
 
     // Handle HLS playback properly
-if (streamUrl.includes('.m3u8')) {
-    if (Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(streamUrl);
-        hls.attachMedia(player);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            player.play();
-        });
-
-        hls.on(Hls.Events.ERROR, (event, data) => {
-            console.error("HLS Error:", data);
-            handleStreamError(streamUrl, channel);
-        });
-
-        player.hlsInstance = hls;
-    } else {
-        handleStreamError(streamUrl, channel);
-    }
+if (!streamUrl.includes('.m3u8') && !streamUrl.includes('.mp4') && !streamUrl.includes('.webm')) {
+    alert("This is not a direct video stream. The source may require manual extraction.");
+    handleStreamError(streamUrl, channel);
+    return;
 } else {
     player.src = streamUrl;
-    player.type = "video/mp4"; // Define correct video format
+    player.type = streamUrl.includes('.mp4') ? "video/mp4" : "video/webm";
     player.load();
     player.play();
 }
 
-
-    channel.played = true;
-    popupContainer.classList.remove('hidden');
 });
-
-
 
 
 playCell.appendChild(playButton);
