@@ -20,28 +20,36 @@
   <style>
 @media (max-width: 768px) {
     th, td {
-        padding: 0.3rem; /* Slightly reduced padding to optimize space */
-        font-size: 14px;
+        padding: 0.2rem; /* Further reduce padding */
+        font-size: 13px; /* Slightly smaller font for better fit */
+    }
+
+    th:first-child, td:first-child { /* Checkboxes */
+        width: 18px; /* Reduce checkbox column size */
+    }
+
+    th:nth-child(2), td:nth-child(2) { /* Channel number */
+        width: 25px; /* Shrink numbering column */
     }
 
     .name-cell, .group-cell {
-        min-width: 200px; /* Wider input fields */
-        max-width: 400px; /* Expands to ensure readability */
-        word-wrap: break-word;
+        min-width: 180px; /* Slightly wider input fields */
+        max-width: 300px; /* Ensures readability */
     }
 
     .logo-cell {
-        width: 40px; /* Smaller logo space to free up room */
+        width: 40px; /* Compact logo size */
     }
 
-    th:nth-child(3), td:nth-child(3) { /* Play Button Column */
-        width: 25px; /* Compact for better spacing */
+    th:nth-child(7), td:nth-child(7) { /* Country Filter Column */
+        width: 50px;
     }
 
     th:last-child, td:last-child { /* Copy URL Column */
-        width: 70px; /* Slightly reduced width */
+        width: 70px;
     }
 }
+
 
 	      .hidden {
       display: none;
@@ -590,11 +598,16 @@ playButton.textContent = '▶';
 playButton.classList.add('bg-indigo-500', 'hover:bg-indigo-700', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'text-xs');
 
 // Play button functionality
-
-	playButton.addEventListener('click', async () => {
+playButton.addEventListener('click', () => {
     const popupContainer = document.getElementById('popup-container');
-    const player = document.getElementById('popup-player');
-    const streamUrl = channel.url;
+    if (!popupContainer) {
+        console.error("Popup container not found!");
+        return;
+    }
+
+    popupContainer.style.display = 'flex'; // Ensure it loads when clicking play
+});
+
 
     if (!popupContainer || !player) {
         console.error("Popup elements not found!");
@@ -607,22 +620,31 @@ playButton.classList.add('bg-indigo-500', 'hover:bg-indigo-700', 'text-white', '
     }, { once: true });
 
     // Handle HLS playback properly
-    if (streamUrl.includes(".m3u8")) {
-        if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(streamUrl);
-            hls.attachMedia(player);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                player.play();
-            });
-            player.hlsInstance = hls;
-        } else {
+if (streamUrl.includes('.m3u8')) {
+    if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(streamUrl);
+        hls.attachMedia(player);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            player.play();
+        });
+
+        hls.on(Hls.Events.ERROR, (event, data) => {
+            console.error("HLS Error:", data);
             handleStreamError(streamUrl, channel);
-        }
+        });
+
+        player.hlsInstance = hls;
     } else {
-        player.src = streamUrl;
-        player.load();
+        handleStreamError(streamUrl, channel);
     }
+} else {
+    player.src = streamUrl;
+    player.type = "video/mp4"; // Define correct video format
+    player.load();
+    player.play();
+}
+
 
     channel.played = true;
     popupContainer.classList.remove('hidden');
