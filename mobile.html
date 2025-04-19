@@ -869,8 +869,22 @@ cancelDeleteButton.addEventListener('click', () => {
 });
 
 
-  fileInput.addEventListener('change', (event) => {
+document.getElementById('file-input').addEventListener('change', (event) => {
     const file = event.target.files[0];
+    if (!file) return;
+    
+    currentFile = file;
+    currentFileSpan.textContent = currentFile.name;
+
+    if (file.name.endsWith('.m3u')) {
+        handleM3UtoXLSX(file); // Ensure conversion function is triggered
+    } else if (file.name.endsWith('.xlsx')) {
+        alert("XLSX loading to GUI will be implemented later.");
+    } else {
+        alert('Please select a valid .m3u file.');
+    }
+});
+
     if (!file) return;
     currentFile = file;
     currentFileSpan.textContent = currentFile.name;
