@@ -263,14 +263,22 @@
   const currentFileSpan = document.getElementById('current-file');
   
 
-loadButton.addEventListener('click', () => {
+document.getElementById('load-button').addEventListener('click', () => {
     const fileInput = document.getElementById('file-input');
     if (!fileInput) {
         console.error("File input element not found!");
         return;
     }
+
+    // Make sure it's visible before clicking (temporary debugging step)
+    fileInput.classList.remove('hidden');
+
     fileInput.click(); // Open file dialog
-    updateGroupSuggestions();
+
+    // Restore hidden state after 2 seconds (for debugging)
+    setTimeout(() => {
+        fileInput.classList.add('hidden');
+    }, 2000);
 });
 
 
