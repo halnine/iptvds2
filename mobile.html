@@ -18,55 +18,31 @@
 
 
   <style>
-    /* Base table styles */
-    th:first-child,
-    td:first-child {
-      width: 30px;
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
-      text-align: center;
+@media (max-width: 768px) {
+    th, td {
+        padding: 0.3rem; /* Slightly reduced padding to optimize space */
+        font-size: 14px;
     }
-    th:nth-child(2),
-    td:nth-child(2) {
-      width: 50px;
-      text-align: center;
+
+    .name-cell, .group-cell {
+        min-width: 200px; /* Wider input fields */
+        max-width: 400px; /* Expands to ensure readability */
+        word-wrap: break-word;
     }
-    th:nth-child(3),
-    td:nth-child(3) {
-      width: 50px;
-      text-align: center;
-    }
+
     .logo-cell {
-      width: 70px;
+        width: 40px; /* Smaller logo space to free up room */
     }
-    .logo-img {
-      max-width: 85%;
-      height: auto;
-      object-fit: contain;
-      background-color: transparent;
-      max-height: 25px;
+
+    th:nth-child(3), td:nth-child(3) { /* Play Button Column */
+        width: 25px; /* Compact for better spacing */
     }
-    .name-cell {
-      width: 400px;
-      word-break: break-word;
+
+    th:last-child, td:last-child { /* Copy URL Column */
+        width: 70px; /* Slightly reduced width */
     }
-    .group-cell {
-      width: 400px;
-      word-break: break-word;
-    }
-    th:nth-child(7),
-    td:nth-child(7) {
-      width: 60px;
-      text-align: center;
-    }
-    th:last-child,
-    td:last-child {
-      width: 80px;
-      text-align: center;
-    }
-    .hidden {
-      display: none;
-    }
+}
+
     body {
       background-color: #d1d5db;
     }
@@ -132,14 +108,18 @@
 }
 
 @media (max-width: 768px) {
-    #popup-container {
-        width: 95%;
-        height: auto;
-        top: 10%;
-        left: 2.5%;
-        transform: none;
-        background: rgba(0, 0, 0, 0.85);
-    }
+#popup-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 5000;
+}
 
     #popup-player {
         width: 100%;
@@ -683,26 +663,27 @@ playCell.appendChild(playButton);
     document.body.appendChild(errorMessage);
 
     // **Ensure Buttons Work Properly by Attaching Listeners AFTER Creation**
-    setTimeout(() => {
-        document.getElementById("download-m3u").addEventListener("click", () => {
-            const m3uContent = `#EXTM3U\n#EXTINF:-1,${channel.name}\n${streamUrl}`;
-            const blob = new Blob([m3uContent], { type: 'application/vnd.apple.mpegurl' });
-            const downloadLink = document.createElement("a");
-            downloadLink.href = URL.createObjectURL(blob);
-            downloadLink.download = `${channel.name.replace(/[^a-zA-Z0-9]/g, '')}.m3u`;
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
-            document.body.removeChild(errorMessage); // Remove error box
-        });
 
-        document.getElementById("cancel-playback").addEventListener("click", () => {
+	setTimeout(() => {
+    const downloadM3UButton = document.getElementById("download-m3u");
+    const cancelButton = document.getElementById("cancel-playback");
+
+    if (downloadM3UButton) {
+        downloadM3UButton.addEventListener("click", downloadM3U);
+        downloadM3UButton.addEventListener("touchstart", downloadM3U); // Mobile fix
+    }
+
+    if (cancelButton) {
+        cancelButton.addEventListener("click", () => {
             document.body.removeChild(errorMessage);
         });
-    }, 100); // Ensure UI elements are ready before attaching listeners
+        cancelButton.addEventListener("touchstart", () => {
+            document.body.removeChild(errorMessage);
+        });
+    }
+}, 100); // Ensures UI elements are fully loaded before attaching listeners
+
 }
-
-
 
       // Logo cell
       const logoCell = row.insertCell();
