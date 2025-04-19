@@ -167,12 +167,14 @@
   </div>
   <!-- Sticky buttons row -->
   <div class="sticky-buttons p-2 flex space-x-2 shadow-sm">
-   <input type="file" id="file-input" accept=".m3u,.xlsx" style="opacity: 0; position: absolute; width: 100%; height: 100%;">
+<input type="file" id="file-input" class="hidden" accept=".m3u,.xlsx" style="position: absolute; opacity: 0; z-index: -1;">
 
-    <button id="load-button"
-            class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded text-sm">
-      Load
-    </button>
+
+<button id="load-button" onclick="document.getElementById('file-input').click()"
+        class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded text-sm">
+    Load
+</button>
+
     <input type="text" id="search-input" placeholder="Search channel name"
            class="shadow appearance-none border rounded w-auto py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm">
 <input type="text" id="group-filter-input" placeholder="Filter by group"
