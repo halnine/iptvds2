@@ -74,21 +74,21 @@ body {
     text-align: left; /* Align content properly */
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px) { /* For screens smaller than 768px */
     .sticky-buttons {
         flex-wrap: wrap; /* Enable wrapping on smaller screens */
-        justify-content: center; /* Align buttons to center */
+        justify-content: center; /* Center the buttons */
         gap: 0.5rem; /* Add space between buttons */
         padding: 0.5rem; /* Consistent padding */
-        height: auto; /* Allow height adjustment */
+        height: auto; /* Let the row adjust dynamically */
     }
 
     button {
-        width: auto; /* Prevent buttons from being overly wide */
-        min-width: 100px; /* Set a reasonable minimum width */
-        max-width: 150px; /* Prevent excessive button width */
-        font-size: 0.8rem; /* Reduce font size for smaller screens */
-        padding: 0.5rem; /* Ensure compact size */
+        width: auto; /* Allow buttons to adjust their width */
+        max-width: 120px; /* Limit button width to avoid large sizes */
+        font-size: 0.8rem; /* Scale down text for smaller screens */
+        height: 2.5rem; /* Enforce consistent button height */
+        padding: 0.25rem 0.5rem; /* Compact padding to reduce button size */
     }
 }
 
