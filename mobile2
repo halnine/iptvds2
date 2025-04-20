@@ -166,6 +166,21 @@ input[type="checkbox"] {
 }
 
 
+@media (max-width: 768px) { /* Target screens smaller than 768px */
+    .sticky-buttons {
+        flex-wrap: wrap; /* Enable wrapping */
+        justify-content: center; /* Center buttons */
+        gap: 0.5rem; /* Add space between buttons */
+        padding: 0.5rem; /* Ensure padding is consistent */
+        height: auto; /* Allow dynamic height based on content */
+    }
+
+    button {
+        min-width: 100px; /* Ensure buttons remain readable */
+        font-size: 0.8rem; /* Adjust font size for mobile */
+    }
+}
+
 
   </style>
 </head>
