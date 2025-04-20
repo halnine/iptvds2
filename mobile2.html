@@ -76,38 +76,39 @@ body {
 
 @media (max-width: 768px) {
     .sticky-buttons {
-        display: flex; /* Ensure flexbox layout */
-        flex-wrap: wrap; /* Force buttons to wrap */
-        justify-content: center; /* Center the buttons */
-        gap: 0.5rem; /* Space between buttons */
-        padding-top: 0.25rem; /* Compact padding */
-        padding-bottom: 0.25rem; /* Match previous version */
-        width: 100%; /* Ensure row spans viewport width */
-        box-sizing: border-box; /* Include padding and borders in width calculations */
-        overflow-x: hidden; /* Prevent horizontal scrolling */
-        height: auto; /* Allow row height to adjust dynamically */
+        display: flex; /* Flexbox container for rows */
+        flex-direction: column; /* Stack rows vertically */
+        width: 100%; /* Full width of the container */
+        box-sizing: border-box; /* Include padding in width calculations */
+        gap: 1rem; /* Add space between rows */
+        padding: 0.5rem; /* Consistent padding */
+    }
+
+    .button-row-1,
+    .button-row-2 {
+        display: flex; /* Flexbox within each row */
+        justify-content: center; /* Center items in each row */
+        gap: 0.5rem; /* Add space between items in rows */
     }
 
     button {
-        flex: 1 1 20%; /* Dynamically resize buttons for wrapping */
-        max-width: 100px; /* Cap button width */
-        min-width: 70px; /* Set a minimum button width */
-        font-size: 0.75rem; /* Compact font size */
-        height: 2rem; /* Restore smaller button height */
-        padding: 0.25rem; /* Compact padding */
+        appearance: button; /* Explicitly ensure buttons remain styled as buttons */
+        width: auto; /* Allow buttons to resize naturally */
+        max-width: 120px; /* Cap button width */
+        font-size: 0.8rem; /* Adjust text size */
+        height: 2.5rem; /* Consistent button height */
+        padding: 0.25rem; /* Compact padding for mobile */
+    }
+
+    #search-input,
+    #group-filter-input {
+        width: calc(50% - 0.5rem); /* Fit filters in the first row */
+        font-size: 0.8rem; /* Match button text size */
+        padding: 0.25rem; /* Compact padding for inputs */
     }
 }
 
 
-
-
-
-    /* Adjust channel and group filter widths */
-    #search-input, #group-filter-input {
-        width: 50%; /* Reduce width to half */
-        font-size: 0.8rem; /* Adjust font size for compactness */
-    }
-}
 
 
 /* Status bar styles */
@@ -265,6 +266,8 @@ input[type="checkbox"] {
         Export M3U
     </button>
 </div>
+
+
 
 
     <!-- Playlist container -->
