@@ -76,25 +76,29 @@ body {
 
 @media (max-width: 768px) {
     .sticky-buttons {
-        display: flex; /* Ensure it's a flex container */
-        flex-wrap: wrap; /* Force wrapping for buttons */
-        justify-content: center; /* Align buttons to center */
-        gap: 0.5rem; /* Add spacing between buttons */
-        padding: 0.5rem; /* Maintain padding */
-        max-width: 100%; /* Constrain the row within the viewport width */
+        display: flex; /* Ensure flexbox layout */
+        flex-wrap: wrap; /* Force buttons to wrap */
+        justify-content: center; /* Center the buttons */
+        gap: 0.5rem; /* Space between buttons */
+        padding-top: 0.25rem; /* Compact padding */
+        padding-bottom: 0.25rem; /* Match previous version */
+        width: 100%; /* Ensure row spans viewport width */
         box-sizing: border-box; /* Include padding and borders in width calculations */
-        height: auto; /* Allow dynamic height for wrapping */
+        overflow-x: hidden; /* Prevent horizontal scrolling */
+        height: auto; /* Allow row height to adjust dynamically */
     }
 
     button {
-        flex: 1 1 auto; /* Allow buttons to adjust flexibly */
-        max-width: 150px; /* Prevent excessively wide buttons */
-        min-width: 80px; /* Avoid overly small buttons */
-        font-size: 0.8rem; /* Scale down text size for mobile screens */
-        padding: 0.25rem 0.5rem; /* Compact padding */
-        height: 2.5rem; /* Enforce consistent height */
+        flex: 1 1 20%; /* Dynamically resize buttons for wrapping */
+        max-width: 100px; /* Cap button width */
+        min-width: 70px; /* Set a minimum button width */
+        font-size: 0.75rem; /* Compact font size */
+        height: 2rem; /* Restore smaller button height */
+        padding: 0.25rem; /* Compact padding */
     }
 }
+
+
 
 
 
@@ -106,12 +110,12 @@ body {
 }
 
 
-
 /* Status bar styles */
 #status-bar {
     position: sticky;
     top: 0;
     display: flex;
+	
     align-items: center;
     justify-content: space-between;
     background-color: #e5e7eb; /* Restore light gray */
@@ -122,6 +126,19 @@ body {
     box-sizing: border-box;
 }
 
+
+@media (max-width: 768px) {
+    #status-bar {
+        flex-wrap: wrap; /* Enable wrapping in the status bar */
+        justify-content: center; /* Align items in the center */
+    }
+
+    #search-input, #group-filter-input {
+        flex: 1 1 45%; /* Allow the inputs to share space dynamically */
+        max-width: 45%; /* Keep input width proportional */
+        margin-bottom: 0.5rem; /* Add spacing between rows */
+    }
+}
 
 
 /* Remove vertical spacing between elements */
@@ -185,8 +202,9 @@ input[type="checkbox"] {
 }
 
 
-
   </style>
+  
+  
 </head>
 <body class="bg-gray-300 font-sans">
   <!-- Sticky header -->
