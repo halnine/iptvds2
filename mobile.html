@@ -138,71 +138,122 @@
 
   </style>
 </head>
+	
 <body class="bg-gray-300 font-sans">
   <!-- Sticky header -->
-  <div class="sticky-header p-2 shadow-md">
-    <div class="flex justify-between items-center text-sm">
-      <div>
-        Total: <span id="total-channels">0</span> |
-        Selected: <span id="selected-channels">0</span> |
-        Deleted: <span id="deleted-channels">0</span> |
-        Edited: <span id="edited-channels">0</span> |
-        File: <span id="current-file">None</span>
-      </div>
-      <div>
-        <button onclick="document.getElementById('convertM3U').click()"
-                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded text-xs">
-          M3U ➜ XLSX
-        </button>
-        <button onclick="document.getElementById('convertXLSX').click()"
-                class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded text-xs">
-          XLSX ➜ M3U
-        </button>
+<div id="layout-container">
+    <!-- Status bar -->
+    <div id="status-bar" class="flex justify-between items-center bg-gray-800 text-white p-2 text-sm">
+        <div>
+            Total: <span id="total-channels">0</span> |
+            Selected: <span id="selected-channels">0</span> |
+            Deleted: <span id="deleted-channels">0</span> |
+            Edited: <span id="edited-channels">0</span> |
+            File: <span id="current-file">None</span>
+        </div>
+        <div>
+            <button onclick="document.getElementById('convertM3U').click()"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded text-xs">
+                M3U ➜ XLSX
+            </button>
+            <button onclick="document.getElementById('convertXLSX').click()"
+                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded text-xs">
+                XLSX ➜ M3U
+            </button>
 
-			   <input type="file" id="convertM3U" class="hidden" accept=".m3u" onchange="handleM3UtoXLSX(this.files[0])">
-<input type="file" id="convertXLSX" class="hidden" accept=".xlsx" onchange="handleXLSXtoM3U(this.files[0])">
-
-      </div>
+            <input type="file" id="convertM3U" class="hidden" accept=".m3u" onchange="handleM3UtoXLSX(this.files[0])">
+            <input type="file" id="convertXLSX" class="hidden" accept=".xlsx" onchange="handleXLSXtoM3U(this.files[0])">
+        </div>
     </div>
-  </div>
-  <!-- Sticky buttons row -->
-  <div class="sticky-buttons p-2 flex space-x-2 shadow-sm">
-<input type="file" id="file-input" class="hidden" accept=".m3u,.xlsx" style="position: absolute; opacity: 0; z-index: -1;">
 
-
-<button id="load-button" onclick="document.getElementById('file-input').click()"
-        class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded text-sm">
-    Load
-</button>
-
+  <!-- Button row -->
+<div id="button-row" class="sticky flex space-x-2 bg-gray-300 p-2 shadow-sm" style="top: 2.5rem; z-index: 9;">
+    <input type="file" id="file-input" class="hidden" accept=".m3u,.xlsx">
+    <button id="load-button"
+            class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded text-sm">
+        Load
+    </button>
     <input type="text" id="search-input" placeholder="Search channel name"
            class="shadow appearance-none border rounded w-auto py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm">
-<input type="text" id="group-filter-input" placeholder="Filter by group"
-       class="shadow appearance-none border rounded w-auto py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
-       list="group-suggestions">
-<datalist id="group-suggestions"></datalist>
+    <input type="text" id="group-filter-input" placeholder="Filter by group"
+           class="shadow appearance-none border rounded w-auto py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
+           list="group-suggestions">
+    <datalist id="group-suggestions"></datalist>
 
     <button id="undo-button"
             class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded text-sm">
-      Undo
+        Undo
     </button>
     <button id="delete-selected-button"
             class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm">
-      Delete Selected
+        Delete Selected
     </button>
-	<button id="cancel-delete" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm hidden">Show All</button>
-
+    <button id="cancel-delete" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm hidden">Show All</button>
     <button id="duplicates-button"
             class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded text-sm">
-      Duplicates
+        Duplicates
     </button>
     <button id="export-m3u-button"
             class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm">
-      Export M3U
+        Export M3U
     </button>
+</div>
 
-<!-- Popup Video Player (Floating & Hidden) -->
-<div id="popup-container" class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-75 hidden">
+
+    <!-- Playlist container -->
+    <div id="playlist-container">
+        <table id="playlist-table" class="shadow-md rounded w-full bg-white">
+<thead class="sticky-header">
+    <tr>
+      <th>
+        <input type="checkbox" id="select-all" class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm" style="background-color: white;">
+      </th>
+      <th class="cursor-pointer">#</th>
+      <th>Play</th>
+      <th>Logo</th>
+      <th class="text-left">Name</th>
+      <th class="text-left">Group</th>
+      <th>
+        <select id="country-filter" class="shadow appearance-none border rounded py-1 px-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-xs">
+          <option value="">All</option>
+          <option value="BLANK">Blank</option>
+        </select>
+      </th>
+      <th>Copy URL</th>
+    </tr>
+  </thead>
+            <tbody id="playlist-table-body"></tbody>
+        </table>
+    </div>
+</div>
+
+  </div>
+
+ <div class="p-4">
+    <table class="shadow-md rounded w-full bg-white" style="margin-left: -1rem; margin-right: -1rem;">   <table class="shadow-md rounded w-full bg-white" cellspacing="0" cellpadding="0">
+  <colgroup>
+    <!-- First column: Checkbox -->
+    <col style="width: 0px;">
+    <!-- Second column: Number (#) -->
+    <col style="width: 5px;">
+    <!-- Third column: Play button -->
+    <col style="width: 10px;">
+    <!-- The remaining columns adjust automatically -->
+    <col>
+    <col>
+    <col>
+    <col>
+    <col>
+  </colgroup>
+
+  <tbody id="playlist-table-body">
+  </tbody>
+</table>
+
+  </div>
+
+
+<div id="popup-container" class="hidden fixed inset-0 flex justify-center items-center bg-black bg-opacity-75">
     <div class="relative w-[400px] h-[240px] bg-gray-900 rounded-lg shadow-lg">
         <video id="popup-player" controls class="w-full h-full">
             <source id="popup-video-source" src="" type="application/x-mpegURL">
@@ -210,38 +261,6 @@
         </video>
     </div>
 </div>
-
-
-
-
-  </div>
-
-  <div class="p-4">
-    <table class="shadow-md rounded w-full bg-white">
-      <thead class="bg-gray-200">
-        <tr>
-          <th>
-            <input type="checkbox" id="select-all" class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm" style="background-color: white;">
-          </th>
-          <th class="cursor-pointer">#</th>
-          <th>Play</th>
-          <th>Logo</th>
-          <th class="text-left">Name</th>
-          <th class="text-left">Group</th>
-          <th>
-            <select id="country-filter" class="shadow appearance-none border rounded py-1 px-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-xs">
-              <option value="">All Countries</option>
-              <option value="BLANK">No Country Code</option>
-            </select>
-          </th>
-          <th>Copy URL</th>
-        </tr>
-      </thead>
-      <tbody id="playlist-table-body">
-      </tbody>
-    </table>
-
-  </div>
 
 
 
