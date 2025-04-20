@@ -74,25 +74,28 @@ body {
     text-align: left; /* Align content properly */
 }
 
-@media (max-width: 768px) { /* Target mobile screens */
+@media (max-width: 768px) {
     .sticky-buttons {
-        display: flex; /* Use a flex container */
-        flex-wrap: wrap; /* Enable wrapping for buttons */
-        justify-content: center; /* Align buttons to the center */
+        display: flex; /* Ensure it's a flex container */
+        flex-wrap: wrap; /* Force wrapping for buttons */
+        justify-content: center; /* Center buttons */
+        align-items: center; /* Align items vertically */
         gap: 0.5rem; /* Add spacing between buttons */
-        padding: 0.5rem; /* Keep consistent padding */
+        padding: 0.5rem; /* Maintain padding */
+        width: 100%; /* Make sure the row spans the viewport width */
         height: auto; /* Allow the height to adjust dynamically */
     }
 
     button {
-        flex: 1 1 40%; /* Each button takes 40% width, allowing wrapping */
-        max-width: 120px; /* Prevent overly large buttons */
-        min-width: 90px; /* Ensure buttons aren’t too small */
-        font-size: 0.8rem; /* Adjust text size for mobile */
-        height: 2.5rem; /* Consistent height */
-        padding: 0.25rem 0.5rem; /* Compact padding for better fit */
+        flex: 1 1 auto; /* Let buttons adjust flexibly */
+        max-width: 120px; /* Prevent excessively wide buttons */
+        min-width: 80px; /* Avoid overly small buttons */
+        font-size: 0.8rem; /* Scale down text size for mobile screens */
+        padding: 0.25rem 0.5rem; /* Compact padding */
+        height: 2.5rem; /* Enforce consistent height */
     }
 }
+
 
 
     /* Adjust channel and group filter widths */
@@ -106,19 +109,19 @@ body {
 
 /* Status bar styles */
 #status-bar {
-    position: sticky; /* Make it sticky */
-    top: 0; /* Stick at the top of the viewport */
+    position: sticky;
+    top: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: #e5e7eb; /* Unified background with button row */
-    color: black; /* Adjust text color for contrast */
+    background-color: #e5e7eb; /* Restore light gray */
+    color: black; /* Ensure good contrast */
     padding: 0.5rem;
-    margin: 0; /* Remove unnecessary margin */
-    z-index: 10; /* Ensure it stays above other elements */
-    width: 100%; /* Full width */
+    z-index: 10;
+    width: 100%;
     box-sizing: border-box;
 }
+
 
 
 /* Remove vertical spacing between elements */
