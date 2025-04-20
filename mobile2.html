@@ -74,17 +74,19 @@ body {
     text-align: left; /* Align content properly */
 }
 
-.sticky-buttons {
-    position: sticky; /* Make the button row sticky */
-    top: 2rem; /* Position directly below the status bar */
-    display: flex;
-    justify-content: space-between; /* Space buttons evenly */
-    background-color: #e5e7eb; /* Unified background with the status bar */
-    padding: 0.5rem; /* Add spacing inside */
-    margin: 0; /* Remove unnecessary margins */
-    width: 100%; /* Ensure full width of the viewport */
-    box-sizing: border-box;
-    z-index: 10; /* Ensure it stays above table content */
+@media (max-width: 768px) { /* Target screens smaller than 768px */
+    .sticky-buttons {
+        flex-wrap: wrap; /* Enable wrapping */
+        justify-content: center; /* Center buttons */
+        gap: 0.5rem; /* Add space between buttons */
+        padding: 0.5rem; /* Ensure padding is consistent */
+        height: auto; /* Allow dynamic height based on content */
+    }
+
+    button {
+        min-width: 100px; /* Ensure buttons remain readable */
+        font-size: 0.8rem; /* Adjust font size for mobile */
+    }
 }
 
 
@@ -154,30 +156,19 @@ input[type="checkbox"] {
 
 #popup-container {
     position: fixed; /* Covers the entire viewport */
-    inset: 0; /* Positions the container to fill the screen */
-    background-color: rgba(0, 0, 0, 0.75); /* Semi-transparent black background */
-    z-index: 100; /* Ensure it is above sticky elements */
-    display: flex; /* For centering the player */
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
-    visibility: hidden; /* Start hidden */
-    opacity: 0; /* Transparent by default */
-    transition: opacity 0.3s ease-in-out; /* Smooth fade-in/out effect */
+    inset: 0; /* Aligns the container with the screen edges */
+    background-color: rgba(0, 0, 0, 0.75); /* Semi-transparent background */
+    z-index: 100; /* Ensure it overlays sticky elements */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Prevent scrollbars */
 }
 
-
-@media (max-width: 768px) { /* Target screens smaller than 768px */
-    .sticky-buttons {
-        flex-wrap: wrap; /* Enable wrapping */
-        justify-content: center; /* Center buttons */
-        gap: 0.5rem; /* Add space between buttons */
-        padding: 0.5rem; /* Ensure padding is consistent */
-        height: auto; /* Allow dynamic height based on content */
-    }
-
-    button {
-        min-width: 100px; /* Ensure buttons remain readable */
-        font-size: 0.8rem; /* Adjust font size for mobile */
+@media (max-width: 768px) { /* Center popup for mobile screens */
+    #popup-container > div {
+        width: 90%; /* Shrink width for smaller screens */
+        height: auto; /* Allow dynamic height */
     }
 }
 
