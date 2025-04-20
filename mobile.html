@@ -245,9 +245,9 @@
 
 
 
-
 <script>
 
+let duplicatesActive = false;
 
   const fileInput = document.getElementById('file-input');
   const loadButton = document.getElementById('load-button');
@@ -266,24 +266,11 @@
   const currentFileSpan = document.getElementById('current-file');
   
 
-document.getElementById('load-button').addEventListener('click', () => {
-    const fileInput = document.getElementById('file-input');
-    if (!fileInput) {
-        console.error("File input element not found!");
-        return;
-    }
+loadButton.addEventListener('click', () => {
+  fileInput.click();
+  updateGroupSuggestions();
 
-    // Make sure it's visible before clicking (temporary debugging step)
-    fileInput.classList.remove('hidden');
-
-    fileInput.click(); // Open file dialog
-
-    // Restore hidden state after 2 seconds (for debugging)
-    setTimeout(() => {
-        fileInput.classList.add('hidden');
-    }, 2000);
 });
-
 
   let allChannels = [];
   let visibleChannels = [];
@@ -292,7 +279,6 @@ document.getElementById('load-button').addEventListener('click', () => {
   let history = [];
   let currentFile = null;
   
-
 
   // --- Utility Functions ---
 
@@ -463,22 +449,23 @@ function updateGroupSuggestions() {
 }
 
 
-
 function applyFilters() {
     const searchTerm = searchInput.value.toLowerCase();
     const groupTerm = groupFilterInput.value.toLowerCase();
     const countryFilter = document.getElementById('country-filter').value;
-    
+
     visibleChannels = allChannels.filter(channel => {
-        const nameMatch = channel.name.toLowerCase().includes(searchTerm);
-        const groupMatch = channel.groupTitle.toLowerCase().includes(groupTerm);
-        let countryMatch = true; // Default to true (if no filter selected)
+        const nameMatch = searchTerm ? channel.name.toLowerCase().includes(searchTerm) : true;
+        const groupMatch = groupTerm ? channel.groupTitle.toLowerCase().includes(groupTerm) : true;
+        let countryMatch = true;
+
         if (countryFilter === "BLANK") {
             countryMatch = !channel.tvgId.match(/([A-Za-z]{2})$/);
-        } else if (countryFilter !== "") {
+        } else if (countryFilter) {
             const match = channel.tvgId.match(/([A-Za-z]{2})$/);
             countryMatch = match && match[1].toUpperCase() === countryFilter.toUpperCase();
         }
+
         return nameMatch && groupMatch && countryMatch;
     });
 
@@ -538,8 +525,6 @@ function exportM3UContent(channels) {
   return m3uContent;
 }
 
-
-
   function renderTable(channels) {
     playlistTableBody.innerHTML = '';
     channels.forEach((channel, currentIndex) => {
@@ -552,23 +537,39 @@ function exportM3UContent(channels) {
       if (channel.playedPermanently) row.classList.add('played-permanently');
 
       // Checkbox cell
-      const selectCell = row.insertCell();
-      selectCell.classList.add('py-2', 'px-3');
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.classList.add('row-select');
-      checkbox.checked = channel.selected;
-      checkbox.addEventListener('change', () => {
-        channel.selected = checkbox.checked;
-        row.classList.toggle('selected-row', channel.selected);
-        updateStatus();
-      });
-      selectCell.appendChild(checkbox);
+const selectCell = row.insertCell();
+// Remove any horizontal padding classes; only add vertical padding if needed.
+selectCell.classList.add('py-2'); 
+// Ensure no horizontal padding remains:
+selectCell.classList.remove('px-3');
+selectCell.style.paddingLeft = "0px";
+selectCell.style.paddingRight = "0px";
+
+const checkbox = document.createElement('input');
+checkbox.type = 'checkbox';
+checkbox.classList.add('row-select');
+checkbox.checked = channel.selected;
+// Also force the checkbox's own margins to zero.
+checkbox.style.margin = "0px";
+
+checkbox.addEventListener('change', () => {
+    channel.selected = checkbox.checked;
+    row.classList.toggle('selected-row', channel.selected);
+    updateStatus();
+});
+selectCell.appendChild(checkbox);
+
 
       // Number cell with reordering
-      const numberCell = row.insertCell();
-      numberCell.classList.add('py-2', 'px-3', 'channel-number', 'number-cell', 'cursor-pointer');
-      numberCell.textContent = originalIndex + 1;
+const numberCell = row.insertCell();
+numberCell.classList.add('channel-number', 'number-cell', 'cursor-pointer'); // Simplify padding classes
+numberCell.style.width = "5px"; // Set fixed width
+numberCell.style.padding = "0.1rem"; // Adjust padding for compactness
+numberCell.style.textAlign = "center"; // Align content centrally
+numberCell.textContent = originalIndex + 1;
+
+	  
+	  
       numberCell.addEventListener('click', () => {
         const moveBefore = prompt(`Move channel #${originalIndex + 1} before channel # (enter number):`);
         if (moveBefore !== null && moveBefore.trim() !== '') {
@@ -601,47 +602,109 @@ function exportM3UContent(channels) {
 
 // Play cell
 const playCell = row.insertCell();
-playCell.classList.add('py-2', 'px-3', 'play-cell');
+playCell.classList.add('play-cell'); // Simplify padding classes
+playCell.style.width = "10px"; // Set fixed width
+playCell.style.padding = "0.1rem"; // Adjust padding for compactness
+playCell.style.textAlign = "center"; // Align content centrally
+
+
 const playButton = document.createElement('button');
 playButton.textContent = '▶';
 playButton.classList.add('bg-indigo-500', 'hover:bg-indigo-700', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'text-xs');
 
+
+function showPopup() {
+    const popupContainer = document.getElementById("popup-container");
+    popupContainer.style.visibility = "visible";
+    popupContainer.style.opacity = 1; // Makes it fully visible
+}
+
+function hidePopup() {
+    const popupContainer = document.getElementById("popup-container");
+    popupContainer.style.opacity = 0; // Starts fade-out
+    setTimeout(() => {
+        popupContainer.style.visibility = "hidden";
+    }, 300); // Matches the transition duration
+}
+
+// Attach to play button click and popup-container click
+playButton.addEventListener("click", showPopup);
+document.getElementById("popup-container").addEventListener("click", hidePopup);
+
+
 // Play button functionality
-playButton.addEventListener('click', () => {
-    const popupContainer = document.getElementById('popup-container');
-    const player = document.getElementById('popup-player');
-    const streamUrl = channel.url; // Ensure you retrieve the correct stream URL
+
+
+	playButton.addEventListener("click", async () => {
+    row.classList.add("played-permanently"); // Highlight row as soon as Play is clicked
+
+    const popupContainer = document.getElementById("popup-container");
+    const player = document.getElementById("popup-player");
+    const streamUrl = channel.url;
 
     if (!popupContainer || !player) {
         console.error("Popup elements not found!");
         return;
     }
 
-    // Make popup visible
-    popupContainer.style.display = 'flex';
-    popupContainer.classList.remove('hidden');
+    // Destroy previous HLS instance if exists
+    if (player.hlsInstance) {
+        player.hlsInstance.destroy();
+        player.hlsInstance = null;
+    }
 
-    // Force interaction before playing (fixes mobile autoplay restrictions)
-    player.addEventListener("canplay", () => {
+    try {
+        const response = await fetch(streamUrl, { method: "GET" });
+
+        if (!response.ok) {
+            handleStreamError(streamUrl, channel); // Show error ONLY if stream fails
+            return;
+        }
+    } catch (error) {
+        console.error("Stream request blocked:", error);
+        handleStreamError(streamUrl, channel); // Show error ONLY if stream fails
+        return;
+    }
+
+    // Handle HLS streams properly
+    if (streamUrl.includes(".m3u8")) {
+        if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(streamUrl);
+            hls.attachMedia(player);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                player.play();
+            });
+            hls.on(Hls.Events.ERROR, (event, data) => {
+                console.error("HLS Error:", data);
+                handleStreamError(streamUrl, channel); // Show error ONLY if stream fails
+            });
+            player.hlsInstance = hls;
+        } else {
+            handleStreamError(streamUrl, channel);
+        }
+    } else {
+        player.src = streamUrl;
+        player.addEventListener("error", () => handleStreamError(streamUrl, channel));
+        player.load();
         player.play();
-    }, { once: true });
+    }
 
-    // Handle HLS playback properly
-if (!streamUrl.includes('.m3u8') && !streamUrl.includes('.mp4') && !streamUrl.includes('.webm')) {
-    alert("This is not a direct video stream. The source may require manual extraction.");
-    handleStreamError(streamUrl, channel);
-    return;
-} else {
-    player.src = streamUrl;
-    player.type = streamUrl.includes('.mp4') ? "video/mp4" : "video/webm";
-    player.load();
-    player.play();
-}
+    channel.played = true;
+    channel.playedPermanently = true;
+    row.classList.add("played-permanently");
 
+    popupContainer.classList.remove("hidden");
 });
 
-
 playCell.appendChild(playButton);
+
+// Force remove horizontal padding from the first cell of all rows.
+document.querySelectorAll("#playlist-table-body tr td:first-child").forEach(cell => {
+    cell.style.paddingLeft = "0px";
+    cell.style.paddingRight = "0px";
+});
+
 
 	function handleStreamError(streamUrl, channel) {
     if (document.getElementById('error-message')) return; // Prevent duplicate popups
@@ -678,36 +741,38 @@ playCell.appendChild(playButton);
     document.body.appendChild(errorMessage);
 
     // **Ensure Buttons Work Properly by Attaching Listeners AFTER Creation**
+    setTimeout(() => {
+        document.getElementById("download-m3u").addEventListener("click", () => {
+            const m3uContent = `#EXTM3U\n#EXTINF:-1,${channel.name}\n${streamUrl}`;
+            const blob = new Blob([m3uContent], { type: 'application/vnd.apple.mpegurl' });
+            const downloadLink = document.createElement("a");
+            downloadLink.href = URL.createObjectURL(blob);
+            downloadLink.download = `${channel.name.replace(/[^a-zA-Z0-9]/g, '')}.m3u`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            document.body.removeChild(errorMessage); // Remove error box
+        });
 
-	setTimeout(() => {
-    const downloadM3UButton = document.getElementById("download-m3u");
-    const cancelButton = document.getElementById("cancel-playback");
-
-    if (downloadM3UButton) {
-        downloadM3UButton.addEventListener("click", downloadM3U);
-        downloadM3UButton.addEventListener("touchstart", downloadM3U); // Mobile fix
-    }
-
-    if (cancelButton) {
-        cancelButton.addEventListener("click", () => {
+        document.getElementById("cancel-playback").addEventListener("click", () => {
             document.body.removeChild(errorMessage);
         });
-        cancelButton.addEventListener("touchstart", () => {
-            document.body.removeChild(errorMessage);
-        });
-    }
-}, 100); // Ensures UI elements are fully loaded before attaching listeners
-
+    }, 100); // Ensure UI elements are ready before attaching listeners
 }
+
+
 
       // Logo cell
       const logoCell = row.insertCell();
       logoCell.classList.add('py-2', 'px-3', 'logo-cell');
-      const logoImg = document.createElement('img');
-      logoImg.src = channel.tvgLogo || 'placeholder.png';
-      logoImg.alt = 'Logo';
-      logoImg.classList.add('logo-img');
-      logoCell.appendChild(logoImg);
+ 
+const logoImg = document.createElement("img");
+logoImg.src = channel.tvgLogo || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=";
+logoImg.alt = "Logo";
+logoImg.classList.add("logo-img");
+
+
+ logoCell.appendChild(logoImg);
       logoImg.addEventListener('click', () => {
         const newLogoUrl = prompt("Enter new logo URL:", channel.tvgLogo);
         if (newLogoUrl !== null) {
@@ -818,25 +883,31 @@ playCell.appendChild(playButton);
   }
 
 function populateCountryDropdown() {
-  const countryFilter = document.getElementById('country-filter');
-  document.getElementById('country-filter').addEventListener('change', applyCountryFilter);
+    const countryFilter = document.getElementById('country-filter');
+    // Set the initial options to use your preferred labels.
+    countryFilter.innerHTML = '<option value="">All</option><option value="BLANK">Blank</option>';
 
-  // Clear existing options and add default ones
-  countryFilter.innerHTML = '<option value="">All Countries</option><option value="BLANK">No Country Code</option>';
-  const countrySet = new Set();
-  allChannels.forEach(channel => {
-    const match = channel.tvgId.match(/([A-Za-z]{2})$/);
-    if (match) {
-      countrySet.add(match[1].toUpperCase());
-    }
-  });
-  Array.from(countrySet).sort().forEach(code => {
-    const option = document.createElement('option');
-    option.value = code;
-    option.textContent = code;
-    countryFilter.appendChild(option);
-  });
+    // Create a set to capture unique country codes.
+    const countrySet = new Set();
+    allChannels.forEach(channel => {
+        // Extract the two-letter country code at the end of tvgId (if present).
+        const match = channel.tvgId && channel.tvgId.match(/([A-Za-z]{2})$/);
+        if (match) {
+            countrySet.add(match[1].toUpperCase());
+        }
+    });
+
+    // Append each unique country code (sorted alphabetically) as an option.
+    Array.from(countrySet)
+        .sort()
+        .forEach(code => {
+            const option = document.createElement('option');
+            option.value = code;
+            option.textContent = code;
+            countryFilter.appendChild(option);
+        });
 }
+
 
 const cancelDeleteButton = document.getElementById('cancel-delete');
 cancelDeleteButton.addEventListener('click', () => {
@@ -844,21 +915,39 @@ cancelDeleteButton.addEventListener('click', () => {
     visibleChannels = [...allChannels];
     renderTable(visibleChannels);
     updateStatus();
-    // Reset the delete selected button.
-    deleteSelectedButton.textContent = 'Delete Selected';
-    // Restore the duplicates button's default behavior.
-    duplicatesButton.textContent = 'Duplicates';
-    duplicatesButton.onclick = null;
-    duplicatesButton.addEventListener('click', findDuplicateUrls);
-    showingSelectedToDelete = false;
-    previousFilter = null;
-    // Hide the cancel button.
-    cancelDeleteButton.classList.add('hidden');
+  // Reset the delete selected button.
+deleteSelectedButton.textContent = 'Delete Selected';
+// Reset duplicates toggle status.
+duplicatesActive = false;
+// Restore the duplicates button's toggle functionality.
+duplicatesButton.textContent = 'Duplicates';
+duplicatesButton.onclick = null;
+duplicatesButton.addEventListener('click', () => {
+    if (!duplicatesActive) {
+        const duplicates = allChannels.filter((channel, i, arr) =>
+            arr.some((other, j) => j !== i && other.url === channel.url)
+        );
+        visibleChannels = duplicates;
+        renderTable(visibleChannels);
+        duplicatesButton.textContent = "Show All";
+        duplicatesActive = true;
+    } else {
+        visibleChannels = [...allChannels];
+        renderTable(visibleChannels);
+        duplicatesButton.textContent = "Duplicates";
+        duplicatesActive = false;
+    }
+});
+showingSelectedToDelete = false;
+previousFilter = null;
+// Hide the cancel button.
+cancelDeleteButton.classList.add('hidden');
 });
 
 
-document.getElementById('file
 
+  fileInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
     if (!file) return;
     currentFile = file;
     currentFileSpan.textContent = currentFile.name;
@@ -920,13 +1009,32 @@ document.getElementById('file
   });
   
   searchInput.addEventListener('input', filterChannels);
-  groupFilterInput.addEventListener('input', applyFilters);
-  groupFilterInput.setAttribute('list', 'group-suggestions');
-  duplicatesButton.addEventListener('click', findDuplicateUrls);
-  undoButton.addEventListener('click', restoreState);
-  
-  let showingSelectedToDelete = false;
-  let previousFilter = null;
+groupFilterInput.addEventListener('input', applyFilters);
+document.getElementById('country-filter').addEventListener('change', applyFilters);
+
+
+groupFilterInput.setAttribute('list', 'group-suggestions');
+duplicatesButton.addEventListener('click', () => {
+    if (!duplicatesActive) {
+        const duplicates = allChannels.filter((channel, i, arr) =>
+            arr.some((other, j) => j !== i && other.url === channel.url)
+        );
+        visibleChannels = duplicates;
+        renderTable(visibleChannels);
+        duplicatesButton.textContent = "Show All";
+        duplicatesActive = true;
+    } else {
+        visibleChannels = [...allChannels];
+        renderTable(visibleChannels);
+        duplicatesButton.textContent = "Duplicates";
+        duplicatesActive = false;
+    }
+});
+undoButton.addEventListener('click', restoreState);
+
+let showingSelectedToDelete = false;
+let previousFilter = null;
+
   
   
   
@@ -981,14 +1089,30 @@ showingSelectedToDelete = true;
         }
 updateStatus();
 deleteSelectedButton.textContent = 'Delete Selected';
+duplicatesActive = false;
 duplicatesButton.textContent = 'Duplicates';
 duplicatesButton.onclick = null;
-// Restore the duplicates button's default event listener.
-duplicatesButton.addEventListener('click', findDuplicateUrls);
+// Restore the duplicates button's toggle functionality.
+duplicatesButton.addEventListener('click', () => {
+    if (!duplicatesActive) {
+        const duplicates = allChannels.filter((channel, i, arr) =>
+            arr.some((other, j) => j !== i && other.url === channel.url)
+        );
+        visibleChannels = duplicates;
+        renderTable(visibleChannels);
+        duplicatesButton.textContent = "Show All";
+        duplicatesActive = true;
+    } else {
+        visibleChannels = [...allChannels];
+        renderTable(visibleChannels);
+        duplicatesButton.textContent = "Duplicates";
+        duplicatesActive = false;
+    }
+});
 showingSelectedToDelete = false;
 previousFilter = null;
-// Also, hide the "Show All" button once deletion is confirmed.
 document.getElementById('cancel-delete').classList.add('hidden');
+
 
 
       }, 0);
