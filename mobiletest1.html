@@ -1,1292 +1,1377 @@
-	<!DOCTYPE html>
-	<html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>IPTV Playlist Editor</title>
-		<link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-	<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-	<link rel="shortcut icon" href="/favicon.ico" />
-	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-	<meta name="apple-mobile-web-app-title" content="IPTV ds" />
-	<link rel="manifest" href="/site.webmanifest" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPTV Playlist Editor</title>
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="IPTV ds" />
+    <link rel="manifest" href="/site.webmanifest" />
 
-	  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-	  <script src="https://cdn.tailwindcss.com"></script>
-	  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-
-	  <style>
-		/* Base table styles */
-	th, td {
-		padding: 0.05rem; /* Further reduce padding */
-		font-size: 12px; /* Adjust for compact display */
-	}
-
-	th:first-child, td:first-child { /* Checkboxes */
-		width: 10px;
-	}
-
-	th:nth-child(2), td:nth-child(2) { /* Channel number */
-		width: 5px; /* Compact further for single/double digits */
-		text-align: center; /* Ensure perfect alignment */
-	}
-
-	th:nth-child(3), td:nth-child(3) { /* Play button column */
-		width: 10px; /* Add definition and reduce width */
-		text-align: center; /* Align play buttons */
-	}
-
-	.name-cell, .group-cell {
-		min-width: 140px;
-		max-width: 220px;
-	}
-
-	.logo-cell {
-		width: 30px;
-	}
-
-	.hidden {
-		display: none;
-	}
-
-	body {
-		background-color: #d1d5db;
-	}
-
-	.bg-white {
-		background-color: #d1d5db !important;
-	}
-
-	#playlist-table-body tr {
-		padding-top: 0.1rem;
-		padding-bottom: 0.1rem;
-	}
-
-	/* Sticky header and buttons */
-	.sticky-header {
-		position: sticky; /* Keep the table headers sticky */
-		top: 5.5rem; /* Adjust to position below the button row */
-		background-color: #f3f4f6; /* Light background for visibility */
-		z-index: 8; /* Layer below the button row */
-		padding: 0.5rem; /* Consistent padding */
-		margin: 0; /* Remove unnecessary margin */
-		text-align: left; /* Align content properly */
-	}
-
-@media (max-width: 768px) {
-    #button-row {
-        display: flex;
-        flex-direction: column; /* Stack rows vertically */
-        gap: 0; /* Remove vertical space between rows */
-        width: 100%; /* Full width */
-        padding: 0.5rem; /* Consistent padding */
-        box-sizing: border-box; /* Include padding in width */
-    }
-
-    #button-row-1,
-    #button-row-2 {
-        display: flex; /* Flexbox layout for items */
-        justify-content: flex-start; /* Align items to the start */
-        gap: 0.5rem; /* Add horizontal spacing between items */
-        margin-bottom: 0; /* Remove bottom margin */
-    }
-
-    button {
-        width: auto; /* Allow buttons to resize naturally */
-        max-width: 120px; /* Cap button width */
-        font-size: 0.8rem; /* Adjust text size */
-        height: 2.5rem; /* Consistent height */
-        padding: 0.25rem; /* Compact padding */
-    }
-
-    #search-input,
-    #group-filter-input {
-        width: 40%; /* Explicit filter widths */
-        font-size: 0.8rem; /* Match button text size */
-        padding: 0.25rem; /* Compact padding */
-    }
-}
-
-
-
-	/* Status bar styles */
-	#status-bar {
-		position: sticky;
-		top: 0;
-		display: flex;
-		
-		align-items: center;
-		justify-content: space-between;
-		background-color: #e5e7eb; /* Restore light gray */
-		color: black; /* Ensure good contrast */
-		padding: 0.5rem;
-		z-index: 10;
-		width: 100%;
-		box-sizing: border-box;
-	}
-
-
-	@media (max-width: 768px) {
-		#status-bar {
-			flex-wrap: wrap; /* Enable wrapping in the status bar */
-			justify-content: center; /* Align items in the center */
-		}
-
-		#search-input, #group-filter-input {
-			flex: 1 1 45%; /* Allow the inputs to share space dynamically */
-			max-width: 45%; /* Keep input width proportional */
-			margin-bottom: 0.5rem; /* Add spacing between rows */
-		}
-	}
-
-
-	/* Remove vertical spacing between elements */
-	#status-bar + .sticky-buttons {
-		margin-top: 0; /* Ensure no gap between status bar and button row */
-	}
-
-	table {
-		margin-top: 0; /* Remove margin between table and other elements */
-		border-collapse: collapse !important;
-	}
-
-	#playlist-table-body tr td:first-child {
-		padding: 0 !important;
-		margin: 0;
-	}
-
-	#playlist-table-body td,
-	#playlist-table-body th {
-		padding-top: 0.1rem !important;
-		padding-bottom: 0.1rem !important;
-	}
-
-	/* Row highlighting classes */
-	.played-permanently {
-		background-color: rgba(128, 0, 128, 0.1) !important;
-	}
-
-	.selected-row {
-		background-color: rgba(255, 255, 0, 0.3) !important;
-	}
-
-	/* Edited rows get a slightly darker grey background */
-	.edited {
-		background-color: #c0c0c0 !important;
-	}
-
-	/* Temporary editing highlight */
-	.editing-row {
-		background-color: rgba(0, 255, 0, 0.2) !important;
-	}
-
-	/* Uniform checkbox styling */
-	input[type="checkbox"] {
-		width: 16px;
-		height: 16px;
-		background-color: white;
-	}
-
-	#popup-container {
-		position: fixed; /* Covers the entire viewport */
-		inset: 0; /* Positions the container to fill the screen */
-		background-color: rgba(0, 0, 0, 0.75); /* Semi-transparent black background */
-		z-index: 100; /* Ensure it is above sticky elements */
-		display: flex; /* For centering the player */
-		justify-content: center; /* Center horizontally */
-		align-items: center; /* Center vertically */
-		visibility: hidden; /* Start hidden */
-		opacity: 0; /* Transparent by default */
-		transition: opacity 0.3s ease-in-out; /* Smooth fade-in/out effect */
-	}
-
-
-	  </style>
-	  
-	  
-	</head>
-	<body class="bg-gray-300 font-sans">
-	  <!-- Sticky header -->
-	<div id="layout-container">
-		<!-- Status bar -->
-		<div id="status-bar" class="flex justify-between items-center bg-gray-800 text-white p-2 text-sm">
-			<div>
-				Total: <span id="total-channels">0</span> |
-				Selected: <span id="selected-channels">0</span> |
-				Deleted: <span id="deleted-channels">0</span> |
-				Edited: <span id="edited-channels">0</span> |
-				File: <span id="current-file">None</span>
-			</div>
-			<div>
-				<button onclick="document.getElementById('convertM3U').click()"
-						class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded text-xs">
-					M3U ➜ XLSX
-				</button>
-				<button onclick="document.getElementById('convertXLSX').click()"
-						class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded text-xs">
-					XLSX ➜ M3U
-				</button>
-
-				<input type="file" id="convertM3U" class="hidden" accept=".m3u" onchange="handleM3UtoXLSX(this.files[0])">
-				<input type="file" id="convertXLSX" class="hidden" accept=".xlsx" onchange="handleXLSXtoM3U(this.files[0])">
-			</div>
-		</div>
-
-	<div id="button-row" class="sticky bg-gray-300 p-2 shadow-sm" style="top: 2.5rem; z-index: 9;">
-    <!-- Row 1: Load + Filters -->
-    <div id="button-row-1" class="flex justify-start gap-2 mb-2">
-        <button id="load-button" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded text-sm">
-            Load
-        </button>
-        <input type="text" id="search-input" placeholder="Search channel name"
-               class="shadow appearance-none border rounded w-40 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm">
-        <input type="text" id="group-filter-input" placeholder="Filter by group"
-               class="shadow appearance-none border rounded w-40 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
-               list="group-suggestions">
-        <datalist id="group-suggestions"></datalist>
-    </div>
-
-    <!-- Row 2: Undo + Other Actions -->
-    <div id="button-row-2" class="flex justify-start gap-2">
-        <button id="undo-button" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded text-sm">
-            Undo
-        </button>
-        <button id="delete-selected-button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm">
-            Delete Selected
-        </button>
-        <button id="cancel-delete" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm hidden">
-            Show All
-        </button>
-        <button id="duplicates-button" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded text-sm">
-            Duplicates
-        </button>
-        <button id="export-m3u-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm">
-            Export M3U
-        </button>
-    </div>
-</div>
-
-
-
-		<!-- Playlist container -->
-		<div id="playlist-container">
-			<table id="playlist-table" class="shadow-md rounded w-full bg-white">
-	<thead class="sticky-header">
-		<tr>
-		  <th>
-			<input type="checkbox" id="select-all" class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm" style="background-color: white;">
-		  </th>
-		  <th class="cursor-pointer">#</th>
-		  <th>Play</th>
-		  <th>Logo</th>
-		  <th class="text-left">Name</th>
-		  <th class="text-left">Group</th>
-		  <th>
-			<select id="country-filter" class="shadow appearance-none border rounded py-1 px-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-xs">
-			  <option value="">All</option>
-			  <option value="BLANK">Blank</option>
-			</select>
-		  </th>
-		  <th>Copy URL</th>
-		</tr>
-	  </thead>
-				<tbody id="playlist-table-body"></tbody>
-			</table>
-		</div>
-	</div>
-
-	  </div>
-
-	 <div class="p-4">
-		<table class="shadow-md rounded w-full bg-white" style="margin-left: -1rem; margin-right: -1rem;">   <table class="shadow-md rounded w-full bg-white" cellspacing="0" cellpadding="0">
-	  <colgroup>
-		<!-- First column: Checkbox -->
-		<col style="width: 0px;">
-		<!-- Second column: Number (#) -->
-		<col style="width: 5px;">
-		<!-- Third column: Play button -->
-		<col style="width: 10px;">
-		<!-- The remaining columns adjust automatically -->
-		<col>
-		<col>
-		<col>
-		<col>
-		<col>
-	  </colgroup>
-
-	  <tbody id="playlist-table-body">
-	  </tbody>
-	</table>
-
-	  </div>
-
-
-	<div id="popup-container" class="hidden fixed inset-0 flex justify-center items-center bg-black bg-opacity-75">
-		<div class="relative w-[400px] h-[240px] bg-gray-900 rounded-lg shadow-lg">
-			<video id="popup-player" controls class="w-full h-full">
-				<source id="popup-video-source" src="" type="application/x-mpegURL">
-				Your browser does not support video playback.
-			</video>
-		</div>
-	</div>
-
-
-	<script>
-
-	let duplicatesActive = false;
-
-	  const fileInput = document.getElementById('file-input');
-	  const loadButton = document.getElementById('load-button');
-	  const searchInput = document.getElementById('search-input');
-	  const groupFilterInput = document.getElementById('group-filter-input');
-	  const undoButton = document.getElementById('undo-button');
-	  const deleteSelectedButton = document.getElementById('delete-selected-button');
-	  const duplicatesButton = document.getElementById('duplicates-button');
-	  const exportM3uButton = document.getElementById('export-m3u-button');
-	  const selectAllCheckbox = document.getElementById('select-all');
-	  const playlistTableBody = document.getElementById('playlist-table-body');
-	  const totalChannelsSpan = document.getElementById('total-channels');
-	  const selectedChannelsSpan = document.getElementById('selected-channels');
-	  const deletedChannelsSpan = document.getElementById('deleted-channels');
-	  const editedChannelsSpan = document.getElementById('edited-channels');
-	  const currentFileSpan = document.getElementById('current-file');
-	  
-
-
-if (duplicatesButton) {
-    duplicatesButton.addEventListener('click', () => {
-        if (!duplicatesActive) {
-            const duplicates = allChannels.filter((channel, i, arr) =>
-                arr.some((other, j) => j !== i && other.url === channel.url)
-            );
-            visibleChannels = duplicates;
-            renderTable(visibleChannels);
-            duplicatesButton.textContent = "Show All";
-            duplicatesActive = true;
-        } else {
-            visibleChannels = [...allChannels];
-            renderTable(visibleChannels);
-            duplicatesButton.textContent = "Duplicates";
-            duplicatesActive = false;
+    <style>
+        /* Base table styles */
+        th, td {
+            padding: 0.05rem; /* Further reduce padding */
+            font-size: 12px; /* Adjust for compact display */
         }
-    });
-}
 
-if (currentFileSpan) {
-    currentFileSpan.textContent = currentFile.name;
-}
-
-
-	loadButton.addEventListener('click', () => {
-	  fileInput.click();
-	  updateGroupSuggestions();
-
-	});
-
-	  let allChannels = [];
-	  let visibleChannels = [];
-	  let deletedChannels = [];
-	  let editedChannels = 0;
-	  let history = [];
-	  let currentFile = null;
-	  
-
-	  // --- Utility Functions ---
-
-	  function triggerM3UtoXLSX() {
-		  document.getElementById('convertM3U').click();
-	  }
-
-	  function triggerXLSXtoM3U() {
-		  document.getElementById('convertXLSX').click();
-	  }
-
-	  function handleM3UtoXLSX(file) {
-		  const reader = new FileReader();
-		  reader.onload = function (event) {
-		  
-			  const lines = event.target.result.split(/\r?\n/);
-			  const data = [["Name", "Group", "Logo", "tvg-id", "URL"]];
-			  for (let i = 0; i < lines.length; i++) {
-				  if (lines[i].startsWith("#EXTINF")) {
-					  const info = lines[i];
-					  const url = lines[i + 1] || "";
-					  const name = (info.match(/,(.*)$/) || [])[1] || "Unknown";
-					  const logo = (info.match(/tvg-logo=\"(.*?)\"/) || [])[1] || "";
-					  const group = (info.match(/group-title=\"(.*?)\"/) || [])[1] || "";
-					  const tvgid = (info.match(/tvg-id=\"(.*?)\"/) || [])[1] || "";
-					  data.push([name, group, logo, tvgid, url]);
-					  i++;
-				  }
-			  }
-			  const ws = XLSX.utils.aoa_to_sheet(data);
-			  const wb = XLSX.utils.book_new();
-			  XLSX.utils.book_append_sheet(wb, ws, "Playlist");
-			  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-			  const blob = new Blob([new Uint8Array(excelBuffer)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
-			  // Using the original filename without extra underscores
-			  const filename = file.name.replace(/\.[^/.]+$/, "") + ".xlsx";
-		  
-			  downloadFile(blob, filename, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8');
-		  };
-		  reader.readAsText(file);
-	  }
-
-	  function handleXLSXtoM3U(file) {
-		  const reader = new FileReader();
-		  reader.onload = function (event) {
-			  const data = new Uint8Array(event.target.result);
-			  const workbook = XLSX.read(data, { type: "array" });
-			  const sheet = workbook.Sheets[workbook.SheetNames[0]];
-			  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-			  const [header, ...entries] = rows;
-			  const m3u = ["#EXTM3U"];
-			  for (let i = 0; i < entries.length; i++) {
-				  const row = entries[i];
-				  const name = row[0] || "";
-				  const group = row[1] || "";
-				  const logo = row[2] || "";
-				  const tvgid = row[3] || "";
-				  const url = row[4] || "";
-				  m3u.push(`#EXTINF:-1 tvg-id="${tvgid}" tvg-logo="${logo}" group-title="${group}",${name}`);
-				  m3u.push(url);
-			  }
-			  const m3uContent = m3u.join("\n");
-			  // Export filename now preserves original name (no extra underscore)
-	const filename = file.name.replace(/\.[^/.]+$/, "") + ".m3u";
-
-			  downloadFile(m3uContent, filename, 'text/plain;charset=utf-8');
-		  };
-		  reader.readAsArrayBuffer(file);
-	  }
-
-	function exportM3UContent(channels) {
-	  let m3uContent = "#EXTM3U\n";
-	  channels.forEach(channel => {
-		m3uContent += `#EXTINF:-1 tvg-id="${channel.tvgId}" tvg-logo="${channel.tvgLogo}" group-title="${channel.groupTitle}",${channel.name}\n${channel.url}\n`;
-	  });
-	  return m3uContent;
-	}
-
-	  function generateFilename(ext) {
-		  return currentFile ? currentFile.name.replace(/\.[^/.]+$/, "") + "." + ext : 'playlist.' + ext;
-	  }
-
-function updateStatus() {
-    totalChannelsSpan.textContent = allChannels.length;
-    selectedChannelsSpan.textContent = allChannels.filter(channel => channel.selected).length;
-    deletedChannelsSpan.textContent = deletedChannels.length;
-    editedChannelsSpan.textContent = editedChannels;
-    currentFileSpan.textContent = currentFile ? currentFile.name : 'None'; // Set to 'None' if no file is selected
-}
-
-
-	  function saveState() {
-		  history.push({
-			  allChannels: JSON.parse(JSON.stringify(allChannels)),
-			  deletedChannels: [...deletedChannels]
-		  });
-		  if (history.length > 10) {
-			  history.shift();
-		  }
-	  }
-
-	function findDuplicateUrls() {
-	  const urlCounts = {};
-	  allChannels.forEach(channel => {
-		urlCounts[channel.url] = (urlCounts[channel.url] || 0) + 1;
-	  });
-	  visibleChannels = allChannels.filter(channel => urlCounts[channel.url] > 1);
-	  renderTable(visibleChannels);
-	  updateStatus();
-	}
-
-	  function restoreState() {
-		  if (history.length > 1) {
-			  undoButton.textContent = "WAIT...";
-			  undoButton.classList.add('bg-black');
-			  undoButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-700');
-
-			  setTimeout(() => {
-	const previousState = history.pop();
-	allChannels = previousState.allChannels;
-	deletedChannels = previousState.deletedChannels;
-	editedChannels = allChannels.filter(channel => channel.edited).length;
-	applyFilters();
-	renderTable(visibleChannels);
-	updateStatus();
-
-				  setTimeout(() => {
-					  undoButton.textContent = "Undo";
-					  undoButton.classList.remove('bg-black');
-					  undoButton.classList.add('bg-yellow-500', 'hover:bg-yellow-700');
-				  }, 1000);
-			  }, 1000);
-		  } else {
-			  alert("No previous state to undo.");
-		  }
-	  }
-
-	  function autosave() {
-		  const originalText = undoButton.textContent;
-		  const originalBg = undoButton.style.backgroundColor;
-		  undoButton.style.backgroundColor = 'green';
-		  undoButton.textContent = 'saved';
-		  setTimeout(() => {
-			  undoButton.style.backgroundColor = originalBg || '';
-			  undoButton.textContent = originalText;
-		  }, 1000);
-	  }
-
-	  function filterChannels() {
-		  const searchTerm = searchInput.value.toLowerCase();
-		  visibleChannels = allChannels.filter(channel => channel.name.toLowerCase().includes(searchTerm));
-		  renderTable(visibleChannels);
-		  updateStatus();
-	  }
-	  
-	function updateGroupSuggestions() {
-		const groupSet = new Set();
-		allChannels.forEach(channel => {
-			if (channel.groupTitle) groupSet.add(channel.groupTitle);
-		});
-		
-		const dataList = document.getElementById('group-suggestions');
-		dataList.innerHTML = ''; // Clear previous options
-		groupSet.forEach(group => {
-			const option = document.createElement('option');
-			option.value = group;
-			dataList.appendChild(option);
-		});
-	}
-
-
-	function applyFilters() {
-		const searchTerm = searchInput.value.toLowerCase();
-		const groupTerm = groupFilterInput.value.toLowerCase();
-		const countryFilter = document.getElementById('country-filter').value;
-
-		visibleChannels = allChannels.filter(channel => {
-			const nameMatch = searchTerm ? channel.name.toLowerCase().includes(searchTerm) : true;
-			const groupMatch = groupTerm ? channel.groupTitle.toLowerCase().includes(groupTerm) : true;
-			let countryMatch = true;
-
-			if (countryFilter === "BLANK") {
-				countryMatch = !channel.tvgId.match(/([A-Za-z]{2})$/);
-			} else if (countryFilter) {
-				const match = channel.tvgId.match(/([A-Za-z]{2})$/);
-				countryMatch = match && match[1].toUpperCase() === countryFilter.toUpperCase();
-			}
-
-			return nameMatch && groupMatch && countryMatch;
-		});
-
-		renderTable(visibleChannels);
-		updateStatus();
-	}
-
-
-	function applyCountryFilter() {
-	  const countryFilter = document.getElementById('country-filter');
-	  const selectedCountry = countryFilter.value;
-	  if (selectedCountry === "") {
-		// No filtering – show all channels.
-		visibleChannels = [...allChannels];
-	  } else if (selectedCountry === "BLANK") {
-		// Show channels with no country code.
-		visibleChannels = allChannels.filter(ch => !ch.tvgId.match(/([A-Za-z]{2})$/));
-	  } else {
-		// Filter channels by country code.
-		visibleChannels = allChannels.filter(ch => {
-		  const match = ch.tvgId.match(/([A-Za-z]{2})$/);
-		  return match && match[1].toUpperCase() === selectedCountry.toUpperCase();
-		});
-	  }
-	  renderTable(visibleChannels);
-	  updateStatus();
-	}
-
-	function findDuplicateUrls() {
-		const urlCounts = {};
-		allChannels.forEach(channel => {
-			urlCounts[channel.url] = (urlCounts[channel.url] || 0) + 1;
-		});
-		visibleChannels = allChannels.filter(channel => urlCounts[channel.url] > 1);
-		renderTable(visibleChannels);
-		updateStatus();
-	}
-
-	function downloadFile(content, filename, contentType) {
-	  const a = document.createElement('a');
-	  if (content instanceof Blob) {
-		a.href = URL.createObjectURL(content);
-	  } else {
-		a.href = 'data:' + contentType + ',' + encodeURIComponent(content);
-	  }
-	  a.download = filename;
-	  document.body.appendChild(a);
-	  a.click();
-	  document.body.removeChild(a);
-	}
-
-	function exportM3UContent(channels) {
-	  let m3uContent = "#EXTM3U\n";
-	  channels.forEach(channel => {
-		m3uContent += `#EXTINF:-1 tvg-id="${channel.tvgId}" tvg-logo="${channel.tvgLogo}" group-title="${channel.groupTitle}",${channel.name}\n${channel.url}\n`;
-	  });
-	  return m3uContent;
-	}
-
-	  function renderTable(channels) {
-		playlistTableBody.innerHTML = '';
-		channels.forEach((channel, currentIndex) => {
-		  const originalIndex = allChannels.indexOf(channel);
-		  const row = playlistTableBody.insertRow();
-		  row.classList.add('hover:bg-gray-100');
-		  if (channel.selected) row.classList.add('selected-row');
-		  if (channel.isEditing) row.classList.add('editing-row');
-		  if (channel.edited) row.classList.add('edited');
-		  if (channel.playedPermanently) row.classList.add('played-permanently');
-
-		  // Checkbox cell
-	const selectCell = row.insertCell();
-	// Remove any horizontal padding classes; only add vertical padding if needed.
-	selectCell.classList.add('py-2'); 
-	// Ensure no horizontal padding remains:
-	selectCell.classList.remove('px-3');
-	selectCell.style.paddingLeft = "0px";
-	selectCell.style.paddingRight = "0px";
-
-	const checkbox = document.createElement('input');
-	checkbox.type = 'checkbox';
-	checkbox.classList.add('row-select');
-	checkbox.checked = channel.selected;
-	// Also force the checkbox's own margins to zero.
-	checkbox.style.margin = "0px";
-
-	checkbox.addEventListener('change', () => {
-		channel.selected = checkbox.checked;
-		row.classList.toggle('selected-row', channel.selected);
-		updateStatus();
-	});
-	selectCell.appendChild(checkbox);
-
-
-		  // Number cell with reordering
-	const numberCell = row.insertCell();
-	numberCell.classList.add('channel-number', 'number-cell', 'cursor-pointer'); // Simplify padding classes
-	numberCell.style.width = "5px"; // Set fixed width
-	numberCell.style.padding = "0.1rem"; // Adjust padding for compactness
-	numberCell.style.textAlign = "center"; // Align content centrally
-	numberCell.textContent = originalIndex + 1;
-
-		  
-		  
-		  numberCell.addEventListener('click', () => {
-			const moveBefore = prompt(`Move channel #${originalIndex + 1} before channel # (enter number):`);
-			if (moveBefore !== null && moveBefore.trim() !== '') {
-			  const targetIndex = parseInt(moveBefore) - 1;
-			  if (!isNaN(targetIndex) && targetIndex >= 0 && targetIndex < allChannels.length && targetIndex !== originalIndex) {
-				saveState();
-				undoButton.textContent = "WAIT...";
-				undoButton.classList.add('bg-black');
-				undoButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-700');
-				setTimeout(() => {
-				  const channelToMove = allChannels[originalIndex];
-				  allChannels.splice(originalIndex, 1);
-				  allChannels.splice(targetIndex, 0, channelToMove);
-				  applyFilters();
-				  renderTable(visibleChannels);
-				  setTimeout(() => {
-					undoButton.textContent = "Undo";
-					undoButton.classList.remove('bg-black');
-					undoButton.classList.add('bg-yellow-500', 'hover:bg-yellow-700');
-				  }, 1000);
-				}, 0);
-			  } else if (targetIndex === originalIndex) {
-				alert("You entered the current channel number. No change made.");
-			  } else {
-				alert("Invalid channel number entered.");
-			  }
-			}
-		  });
-
-
-	// Play cell
-	const playCell = row.insertCell();
-	playCell.classList.add('play-cell'); // Simplify padding classes
-	playCell.style.width = "10px"; // Set fixed width
-	playCell.style.padding = "0.1rem"; // Adjust padding for compactness
-	playCell.style.textAlign = "center"; // Align content centrally
-
-
-	const playButton = document.createElement('button');
-	playButton.textContent = '▶';
-	playButton.classList.add('bg-indigo-500', 'hover:bg-indigo-700', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'text-xs');
-
-
-	function showPopup() {
-		const popupContainer = document.getElementById("popup-container");
-		popupContainer.style.visibility = "visible";
-		popupContainer.style.opacity = 1; // Makes it fully visible
-	}
-
-	function hidePopup() {
-		const popupContainer = document.getElementById("popup-container");
-		popupContainer.style.opacity = 0; // Starts fade-out
-		setTimeout(() => {
-			popupContainer.style.visibility = "hidden";
-		}, 300); // Matches the transition duration
-	}
-
-	// Attach to play button click and popup-container click
-	playButton.addEventListener("click", showPopup);
-	document.getElementById("popup-container").addEventListener("click", hidePopup);
-
-
-	// Play button functionality
-
-
-		playButton.addEventListener("click", async () => {
-		row.classList.add("played-permanently"); // Highlight row as soon as Play is clicked
-
-		 const popupContainer = document.getElementById('popup-container');
-    const player = document.getElementById('popup-player');
-    const streamUrl = channel.url;
-
-    if (!popupContainer || !player) {
-        console.error("Popup elements not found!");
-        return;
-    }
-
-    // Force interaction before playing (fixes mobile restrictions)
-    player.addEventListener("canplay", () => {
-        player.play();
-    }, { once: true });
-
-    // Handle HLS playback properly
-    if (streamUrl.includes(".m3u8")) {
-        if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(streamUrl);
-            hls.attachMedia(player);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                player.play();
-            });
-            player.hlsInstance = hls;
-        } else {
-            handleStreamError(streamUrl, channel);
+        th:first-child, td:first-child { /* Checkboxes */
+            width: 10px;
         }
-    } else {
-        player.src = streamUrl;
-        player.load();
-    }
 
-    channel.played = true;
-    popupContainer.classList.remove('hidden');
-});
+        th:nth-child(2), td:nth-child(2) { /* Channel number */
+            width: 5px; /* Compact further for single/double digits */
+            text-align: center; /* Ensure perfect alignment */
+        }
 
+        th:nth-child(3), td:nth-child(3) { /* Play button column */
+            width: 10px; /* Add definition and reduce width */
+            text-align: center; /* Align play buttons */
+        }
 
+        .name-cell, .group-cell {
+            min-width: 140px;
+            max-width: 220px;
+        }
 
-	function handleStreamError(streamUrl, channel) {
-    if (document.getElementById('error-message')) return; // Prevent duplicate popups
+        .logo-cell {
+            width: 30px;
+        }
 
-    // **Auto-generate M3U for streams known to work in VLC**  
-    if (streamUrl.includes("tvpass.org") || streamUrl.includes("stremioaddon")) {
-        const m3uContent = `#EXTM3U\n#EXTINF:-1,${channel.name}\n${streamUrl}`;
-        const blob = new Blob([m3uContent], { type: 'application/vnd.apple.mpegurl' });
-        const downloadLink = document.createElement("a");
-        downloadLink.href = URL.createObjectURL(blob);
-        downloadLink.download = `${channel.name.replace(/[^a-zA-Z0-9]/g, '')}.m3u`;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-        return; // Exit function since we don't need an error message
-    }
+        .hidden {
+            display: none;
+        }
 
-    // **Show Error Message for Streams That Fail**
-    const errorMessage = document.createElement("div");
-    errorMessage.id = "error-message";
-    errorMessage.innerHTML = `
-        <p>Failed to load the stream—possibly due to restrictions.</p>
-        <button id="download-m3u" class="bg-blue-500 text-white px-3 py-1 rounded">Download M3U</button>
-        <button id="cancel-playback" class="bg-gray-500 text-white px-3 py-1 rounded">Cancel</button>
-    `;
-    errorMessage.style.position = "fixed";
-    errorMessage.style.top = "50%";
-    errorMessage.style.left = "50%";
-    errorMessage.style.transform = "translate(-50%, -50%)";
-    errorMessage.style.background = "white";
-    errorMessage.style.padding = "10px";
-    errorMessage.style.borderRadius = "5px";
-    errorMessage.style.boxShadow = "0 2px 10px rgba(0,0,0,0.2)";
-    document.body.appendChild(errorMessage);
+        body {
+            background-color: #d1d5db;
+        }
 
+        .bg-white {
+            background-color: #d1d5db !important;
+        }
 
-	// Force remove horizontal padding from the first cell of all rows.
-	document.querySelectorAll("#playlist-table-body tr td:first-child").forEach(cell => {
-		cell.style.paddingLeft = "0px";
-		cell.style.paddingRight = "0px";
-	});
+        #playlist-table-body tr {
+            padding-top: 0.1rem;
+            padding-bottom: 0.1rem;
+        }
 
+        /* Sticky header and buttons */
+        .sticky-header {
+            position: sticky; /* Keep the table headers sticky */
+            top: 5.5rem; /* Adjust to position below the button row */
+            background-color: #f3f4f6; /* Light background for visibility */
+            z-index: 8; /* Layer below the button row */
+            padding: 0.5rem; /* Consistent padding */
+            margin: 0; /* Remove unnecessary margin */
+            text-align: left; /* Align content properly */
+        }
 
-		function handleStreamError(streamUrl, channel) {
-		if (document.getElementById('error-message')) return; // Prevent duplicate popups
-
-		// **Auto-generate M3U for streams known to work in VLC**  
-		if (streamUrl.includes("tvpass.org") || streamUrl.includes("stremioaddon")) {
-			const m3uContent = `#EXTM3U\n#EXTINF:-1,${channel.name}\n${streamUrl}`;
-			const blob = new Blob([m3uContent], { type: 'application/vnd.apple.mpegurl' });
-			const downloadLink = document.createElement("a");
-			downloadLink.href = URL.createObjectURL(blob);
-			downloadLink.download = `${channel.name.replace(/[^a-zA-Z0-9]/g, '')}.m3u`;
-			document.body.appendChild(downloadLink);
-			downloadLink.click();
-			document.body.removeChild(downloadLink);
-			return; // Exit function since we don't need an error message
-		}
-
-		// **Show Error Message for Streams That Fail**
-		const errorMessage = document.createElement("div");
-		errorMessage.id = "error-message";
-		errorMessage.innerHTML = `
-			<p>Failed to load the stream—possibly due to restrictions.</p>
-			<button id="download-m3u" class="bg-blue-500 text-white px-3 py-1 rounded">Download M3U</button>
-			<button id="cancel-playback" class="bg-gray-500 text-white px-3 py-1 rounded">Cancel</button>
-		`;
-		errorMessage.style.position = "fixed";
-		errorMessage.style.top = "50%";
-		errorMessage.style.left = "50%";
-		errorMessage.style.transform = "translate(-50%, -50%)";
-		errorMessage.style.background = "white";
-		errorMessage.style.padding = "10px";
-		errorMessage.style.borderRadius = "5px";
-		errorMessage.style.boxShadow = "0 2px 10px rgba(0,0,0,0.2)";
-		document.body.appendChild(errorMessage);
-
-		// **Ensure Buttons Work Properly by Attaching Listeners AFTER Creation**
-		setTimeout(() => {
-			document.getElementById("download-m3u").addEventListener("click", () => {
-				const m3uContent = `#EXTM3U\n#EXTINF:-1,${channel.name}\n${streamUrl}`;
-				const blob = new Blob([m3uContent], { type: 'application/vnd.apple.mpegurl' });
-				const downloadLink = document.createElement("a");
-				downloadLink.href = URL.createObjectURL(blob);
-				downloadLink.download = `${channel.name.replace(/[^a-zA-Z0-9]/g, '')}.m3u`;
-				document.body.appendChild(downloadLink);
-				downloadLink.click();
-				document.body.removeChild(downloadLink);
-				document.body.removeChild(errorMessage); // Remove error box
-			});
-
-			document.getElementById("cancel-playback").addEventListener("click", () => {
-				document.body.removeChild(errorMessage);
-			});
-		}, 100); // Ensure UI elements are ready before attaching listeners
-	}
-
-
-
-		  // Logo cell
-		  const logoCell = row.insertCell();
-		  logoCell.classList.add('py-2', 'px-3', 'logo-cell');
-	 
-	const logoImg = document.createElement("img");
-	logoImg.src = channel.tvgLogo || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=";
-	logoImg.alt = "Logo";
-	logoImg.classList.add("logo-img");
-
-
-	 logoCell.appendChild(logoImg);
-		  logoImg.addEventListener('click', () => {
-			const newLogoUrl = prompt("Enter new logo URL:", channel.tvgLogo);
-			if (newLogoUrl !== null) {
-			  saveState();
-			  channel.tvgLogo = newLogoUrl;
-			  logoImg.src = newLogoUrl;
-			  channel.edited = true;
-			  row.classList.add('edited');
-			  autosave();
-			}
-			autosave();
-		  });
-
-		  // Name cell with inline editing
-		  const nameCell = row.insertCell();
-		  nameCell.classList.add('py-2', 'px-3', 'name-cell');
-		  const nameInput = document.createElement('input');
-		  nameInput.type = 'text';
-		  nameInput.value = channel.name;
-		  nameInput.classList.add('shadow-inner', 'border', 'rounded', 'py-1', 'px-2', 'text-gray-700', 'leading-tight', 'focus:outline-none', 'focus:shadow-outline', 'text-sm', 'w-full');
-		  nameInput.addEventListener('focus', () => {
-			row.classList.add('editing-row');
-			channel.isEditing = true;
-		  });
-		  nameInput.addEventListener('blur', () => {
-			row.classList.remove('editing-row');
-			channel.isEditing = false;
-			if (channel.name !== nameInput.value) {
-			  saveState();
-			  channel.name = nameInput.value;
-			  editedChannels++;
-			  channel.edited = true;
-			  row.classList.add('edited');
-			  autosave();
-			}
-			applyFilters();
-
-		  });
-		  nameCell.appendChild(nameInput);
-
-		  // Group cell with inline editing
-		  const groupCell = row.insertCell();
-		  groupCell.classList.add('py-2', 'px-3', 'group-cell');
-		  
-		  const groupInput = document.createElement('input');
-		  groupInput.type = 'text';
-		  groupInput.value = channel.groupTitle;
-		  groupInput.classList.add('shadow-inner', 'border', 'rounded', 'py-1', 'px-2', 'text-gray-700', 'leading-tight', 'focus:outline-none', 'focus:shadow-outline', 'text-sm', 'w-full');
-		  groupInput.setAttribute('list', 'group-suggestions');
-
-		  groupInput.addEventListener('focus', () => {
-		groupInput.select();
-			row.classList.add('editing-row');
-			channel.isEditing = true;
-		  });
-		  groupInput.addEventListener('blur', () => {
-			row.classList.remove('editing-row');
-			channel.isEditing = false;
-			const newGroupTitle = groupInput.value.trim();
-			if (channel.groupTitle !== newGroupTitle) {
-			  saveState();
-			  channel.groupTitle = newGroupTitle;
-			  editedChannels++;
-			  channel.edited = true;
-			  row.classList.add('edited');
-			  applyFilters();
-			  renderTable(visibleChannels);
-			  updateStatus();
-			  autosave();
-			}
-			applyFilters();
-
-		  });
-		  groupCell.appendChild(groupInput);
-
-		  // Country cell (derived from tvg-id)
-		  const countryCell = row.insertCell();
-		  countryCell.classList.add('py-2', 'px-3', 'country-cell');
-		  const countryCodeMatch = channel.tvgId.match(/([A-Za-z]{2})$/);
-		  countryCell.textContent = countryCodeMatch ? countryCodeMatch[1].toUpperCase() : '';
-
-		  // Copy URL cell
-		  const copyButtonCell = row.insertCell();
-		  copyButtonCell.classList.add('py-2', 'px-3', 'copy-url-cell');
-		  const copyButton = document.createElement('button');
-		  copyButton.textContent = 'Copy URL';
-		  copyButton.classList.add('bg-gray-400', 'hover:bg-gray-500', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'text-xs');
-		  copyButton.addEventListener('click', () => {
-			const originalText = copyButton.textContent;
-			const originalClasses = [...copyButton.classList];
-			navigator.clipboard.writeText(channel.url).then(() => {
-			  copyButton.textContent = 'COPIED';
-			  copyButton.classList.remove(...originalClasses);
-			  copyButton.classList.add('bg-yellow-500', 'text-black', 'font-bold', 'py-1', 'px-2', 'rounded', 'text-xs');
-			  row.classList.add('played-permanently');
-			  setTimeout(() => {
-				copyButton.textContent = originalText;
-				copyButton.classList.remove('bg-yellow-500', 'text-black');
-				copyButton.classList.add(...originalClasses);
-			  }, 1500);
-			}).catch(() => {
-			  alert('Failed to copy URL to clipboard.');
-			});
-		  });
-		  copyButtonCell.appendChild(copyButton);
-	
-		updateStatus();
-	  }
-
-	function populateCountryDropdown() {
-		const countryFilter = document.getElementById('country-filter');
-		// Set the initial options to use your preferred labels.
-		countryFilter.innerHTML = '<option value="">All</option><option value="BLANK">Blank</option>';
-
-		// Create a set to capture unique country codes.
-		const countrySet = new Set();
-		allChannels.forEach(channel => {
-			// Extract the two-letter country code at the end of tvgId (if present).
-			const match = channel.tvgId && channel.tvgId.match(/([A-Za-z]{2})$/);
-			if (match) {
-				countrySet.add(match[1].toUpperCase());
-			}
-		});
-
-		// Append each unique country code (sorted alphabetically) as an option.
-		Array.from(countrySet)
-			.sort()
-			.forEach(code => {
-				const option = document.createElement('option');
-				option.value = code;
-				option.textContent = code;
-				countryFilter.appendChild(option);
-			});
-	}
-
-
-	const cancelDeleteButton = document.getElementById('cancel-delete');
-	cancelDeleteButton.addEventListener('click', () => {
-		// Cancel the pending delete operation and show the full list.
-		visibleChannels = [...allChannels];
-		renderTable(visibleChannels);
-		updateStatus();
-	  // Reset the delete selected button.
-	deleteSelectedButton.textContent = 'Delete Selected';
-	// Reset duplicates toggle status.
-	duplicatesActive = false;
-	// Restore the duplicates button's toggle functionality.
-	duplicatesButton.textContent = 'Duplicates';
-	duplicatesButton.onclick = null;
-	duplicatesButton.addEventListener('click', () => {
-		if (!duplicatesActive) {
-			const duplicates = allChannels.filter((channel, i, arr) =>
-				arr.some((other, j) => j !== i && other.url === channel.url)
-			);
-			visibleChannels = duplicates;
-			renderTable(visibleChannels);
-			duplicatesButton.textContent = "Show All";
-			duplicatesActive = true;
-		} else {
-			visibleChannels = [...allChannels];
-			renderTable(visibleChannels);
-			duplicatesButton.textContent = "Duplicates";
-			duplicatesActive = false;
-		}
-	});
-	showingSelectedToDelete = false;
-	previousFilter = null;
-	// Hide the cancel button.
-	cancelDeleteButton.classList.add('hidden');
-	});
-
-
-
-	  
-document.addEventListener('DOMContentLoaded', () => {
-    let currentFile = null; // Initialize with null to avoid undefined errors
-    const fileInput = document.getElementById('file-input');
-    const currentFileSpan = document.getElementById('current-file-span');
-    const undoButton = document.getElementById('undo-button');
-    const searchInput = document.getElementById('search-input');
-    const groupFilterInput = document.getElementById('group-filter-input');
-    const duplicatesButton = document.getElementById('duplicates-button');
-
-    // Function to update status bar
-    function updateStatus() {
-        totalChannelsSpan.textContent = allChannels.length;
-        selectedChannelsSpan.textContent = allChannels.filter(channel => channel.selected).length;
-        deletedChannelsSpan.textContent = deletedChannels.length;
-        editedChannelsSpan.textContent = editedChannels;
-        currentFileSpan.textContent = currentFile ? currentFile.name : 'None'; // Handle uninitialized currentFile
-    }
-
-    // File input change event
-    if (fileInput) {
-        fileInput.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-            currentFile = file; // Assign selected file
-            updateStatus(); // Update UI with the new file
-        });
-    } else {
-        console.error('File input element not found.');
-    }
-
-    if (currentFileSpan) {
-        currentFileSpan.textContent = 'None'; // Default status before file selection
-    }
-
-    // Other event listeners
-    if (searchInput) {
-        searchInput.addEventListener('input', filterChannels);
-    }
-
-    if (groupFilterInput) {
-        groupFilterInput.addEventListener('input', applyFilters);
-        groupFilterInput.setAttribute('list', 'group-suggestions');
-    }
-
-    if (duplicatesButton) {
-        duplicatesButton.addEventListener('click', () => {
-            if (!duplicatesActive) {
-                const duplicates = allChannels.filter((channel, i, arr) =>
-                    arr.some((other, j) => j !== i && other.url === channel.url)
-                );
-                visibleChannels = duplicates;
-                renderTable(visibleChannels);
-                duplicatesButton.textContent = "Show All";
-                duplicatesActive = true;
-            } else {
-                visibleChannels = [...allChannels];
-                renderTable(visibleChannels);
-                duplicatesButton.textContent = "Duplicates";
-                duplicatesActive = false;
+        @media (max-width: 768px) {
+            #button-row {
+                display: flex;
+                flex-direction: column; /* Stack rows vertically */
+                gap: 0; /* Remove vertical space between rows */
+                width: 100%; /* Full width */
+                padding: 0.5rem; /* Consistent padding */
+                box-sizing: border-box; /* Include padding in width */
             }
-        });
-    }
-});
+
+            #button-row-1,
+            #button-row-2 {
+                display: flex; /* Flexbox layout for items */
+                justify-content: flex-start; /* Align items to the start */
+                gap: 0.5rem; /* Add horizontal spacing between items */
+                margin-bottom: 0; /* Remove bottom margin */
+            }
+
+            button {
+                width: auto; /* Allow buttons to resize naturally */
+                max-width: 120px; /* Cap button width */
+                font-size: 0.8rem; /* Adjust text size */
+                height: 2.5rem; /* Consistent height */
+                padding: 0.25rem; /* Compact padding */
+            }
+
+            #search-input,
+            #group-filter-input {
+                width: 40%; /* Explicit filter widths */
+                font-size: 0.8rem; /* Match button text size */
+                padding: 0.25rem; /* Compact padding */
+            }
+        }
+
+        /* Status bar styles */
+        #status-bar {
+            position: sticky;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #e5e7eb; /* Restore light gray */
+            color: black; /* Ensure good contrast */
+            padding: 0.5rem;
+            z-index: 10;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 768px) {
+            #status-bar {
+                flex-wrap: wrap; /* Enable wrapping in the status bar */
+                justify-content: center; /* Align items in the center */
+            }
+
+            #search-input, #group-filter-input {
+                flex: 1 1 45%; /* Allow the inputs to share space dynamically */
+                max-width: 45%; /* Keep input width proportional */
+                margin-bottom: 0.5rem; /* Add spacing between rows */
+            }
+        }
+
+        /* Remove vertical spacing between elements */
+        #status-bar + .sticky-buttons {
+            margin-top: 0; /* Ensure no gap between status bar and button row */
+        }
+
+        table {
+            margin-top: 0; /* Remove margin between table and other elements */
+            border-collapse: collapse !important;
+        }
+
+        #playlist-table-body tr td:first-child {
+            padding: 0 !important;
+            margin: 0;
+        }
+
+        #playlist-table-body td,
+        #playlist-table-body th {
+            padding-top: 0.1rem !important;
+            padding-bottom: 0.1rem !important;
+        }
+
+        /* Row highlighting classes */
+        .played-permanently {
+            background-color: rgba(128, 0, 128, 0.1) !important;
+        }
+
+        .selected-row {
+            background-color: rgba(255, 255, 0, 0.3) !important;
+        }
+
+        /* Edited rows get a slightly darker grey background */
+        .edited {
+            background-color: #c0c0c0 !important;
+        }
+
+        /* Temporary editing highlight */
+        .editing-row {
+            background-color: rgba(0, 255, 0, 0.2) !important;
+        }
+
+        /* Uniform checkbox styling */
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            background-color: white;
+        }
+
+        #popup-container {
+            position: fixed; /* Covers the entire viewport */
+            inset: 0; /* Positions the container to fill the screen */
+            background-color: rgba(0, 0, 0, 0.75); /* Semi-transparent black background */
+            z-index: 100; /* Ensure it is above sticky elements */
+            display: flex; /* For centering the player */
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            visibility: hidden; /* Start hidden */
+            opacity: 0; /* Transparent by default */
+            transition: opacity 0.3s ease-in-out; /* Smooth fade-in/out effect */
+        }
+    </style>
+</head>
+<body class="bg-gray-300 font-sans">
+    <div id="layout-container">
+        <div id="status-bar" class="flex justify-between items-center bg-gray-800 text-white p-2 text-sm">
+            <div>
+                Total: <span id="total-channels">0</span> |
+                Selected: <span id="selected-channels">0</span> |
+                Deleted: <span id="deleted-channels">0</span> |
+                Edited: <span id="edited-channels">0</span> |
+                File: <span id="current-file">None</span>
+            </div>
+            <div>
+                <button onclick="document.getElementById('convertM3U').click()"
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded text-xs">
+                    M3U ➜ XLSX
+                </button>
+                <button onclick="document.getElementById('convertXLSX').click()"
+                        class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded text-xs">
+                    XLSX ➜ M3U
+                </button>
+
+                <input type="file" id="convertM3U" class="hidden" accept=".m3u" onchange="handleM3UtoXLSX(this.files[0])">
+                <input type="file" id="convertXLSX" class="hidden" accept=".xlsx" onchange="handleXLSXtoM3U(this.files[0])">
+            </div>
+        </div>
+
+        <div id="button-row" class="sticky bg-gray-300 p-2 shadow-sm" style="top: 2.5rem; z-index: 9;">
+            <div id="button-row-1" class="flex justify-start gap-2 mb-2">
+                <button id="load-button" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded text-sm">
+                    Load
+                </button>
+                <input type="text" id="search-input" placeholder="Search channel name"
+                       class="shadow appearance-none border rounded w-40 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm">
+                <input type="text" id="group-filter-input" placeholder="Filter by group"
+                       class="shadow appearance-none border rounded w-40 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
+                       list="group-suggestions">
+                <datalist id="group-suggestions"></datalist>
+            </div>
+
+            <div id="button-row-2" class="flex justify-start gap-2">
+                <button id="undo-button" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded text-sm">
+                    Undo
+                </button>
+                <button id="delete-selected-button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm">
+                    Delete Selected
+                </button>
+                <button id="cancel-delete" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm hidden">
+                    Show All
+                </button>
+                <button id="duplicates-button" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded text-sm">
+                    Duplicates
+                </button>
+                <button id="export-m3u-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm">
+                    Export M3U
+                </button>
+            </div>
+        </div>
+
+        <div id="playlist-container">
+            <table id="playlist-table" class="shadow-md rounded w-full bg-white">
+                <thead class="sticky-header">
+                    <tr>
+                        <th>
+                            <input type="checkbox" id="select-all" class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm" style="background-color: white;">
+                        </th>
+                        <th class="cursor-pointer">#</th>
+                        <th>Play</th>
+                        <th>Logo</th>
+                        <th class="text-left">Name</th>
+                        <th class="text-left">Group</th>
+                        <th>
+                            <select id="country-filter" class="shadow appearance-none border rounded py-1 px-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-xs">
+                                <option value="">All</option>
+                                <option value="BLANK">Blank</option>
+                            </select>
+                        </th>
+                        <th>Copy URL</th>
+                    </tr>
+                </thead>
+                <tbody id="playlist-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="popup-container" class="hidden fixed inset-0 flex justify-center items-center bg-black bg-opacity-75">
+        <div class="relative w-[400px] h-[240px] bg-gray-900 rounded-lg shadow-lg">
+            <video id="popup-player" controls class="w-full h-full">
+                <source id="popup-video-source" src="" type="application/x-mpegURL">
+                Your browser does not support video playback.
+            </video>
+        </div>
+    </div>
+
+    <script>
+        let duplicatesActive = false;
+
+        // Corrected file input element access
+        const fileInput = document.createElement('input'); // Create the element programmatically
+        fileInput.type = 'file';
+        fileInput.id = 'file-input';
+        fileInput.classList.add('hidden');
+        document.body.appendChild(fileInput); // Append it to the body (can be hidden)
 
 
-	
-	
-	undoButton.addEventListener('click', restoreState);
+        const loadButton = document.getElementById('load-button');
+        const searchInput = document.getElementById('search-input');
+        const groupFilterInput = document.getElementById('group-filter-input');
+        const undoButton = document.getElementById('undo-button');
+        const deleteSelectedButton = document.getElementById('delete-selected-button');
+        const duplicatesButton = document.getElementById('duplicates-button');
+        const exportM3uButton = document.getElementById('export-m3u-button');
+        const selectAllCheckbox = document.getElementById('select-all');
+        const playlistTableBody = document.getElementById('playlist-table-body');
+        const totalChannelsSpan = document.getElementById('total-channels');
+        const selectedChannelsSpan = document.getElementById('selected-channels');
+        const deletedChannelsSpan = document.getElementById('deleted-channels');
+        const editedChannelsSpan = document.getElementById('edited-channels');
+        // Corrected current file span access
+        const currentFileSpan = document.getElementById('current-file');
 
 
+        if (duplicatesButton) {
+            duplicatesButton.addEventListener('click', () => {
+                if (!duplicatesActive) {
+                    const duplicates = allChannels.filter((channel, i, arr) =>
+                        arr.some((other, j) => j !== i && other.url === channel.url)
+                    );
+                    visibleChannels = duplicates;
+                    renderTable(visibleChannels);
+                    duplicatesButton.textContent = "Show All";
+                    duplicatesActive = true;
+                } else {
+                    visibleChannels = [...allChannels];
+                    renderTable(visibleChannels);
+                    duplicatesButton.textContent = "Duplicates";
+                    duplicatesActive = false;
+                }
+            });
+        }
 
-	let showingSelectedToDelete = false;
-	let previousFilter = null;
-
-	  
-	  
-	  
-	  deleteSelectedButton.addEventListener('click', () => {
-		if (!showingSelectedToDelete) {
-		  previousFilter = searchInput.value;
-		  const selectedChannels = allChannels.filter(channel => channel.selected);
-		  visibleChannels = selectedChannels;
-		  renderTable(visibleChannels);
-		  searchInput.value = '';
-		  updateStatus();
-	 // Change button text to confirm deletion,
-	// and temporarily convert the duplicates button to export selected channels.
-	deleteSelectedButton.textContent = `Confirm Delete (${selectedChannels.length})`;
-	// Remove the duplicates button's default duplicate-filtering listener.
-	duplicatesButton.removeEventListener('click', findDuplicateUrls);
-	duplicatesButton.textContent = 'Export Selected';
-	duplicatesButton.onclick = function() {
-	  let m3uContent = "#EXTM3U\n";
-	  selectedChannels.forEach(channel => {
-		m3uContent += `#EXTINF:-1 tvg-id="${channel.tvgId}" tvg-logo="${channel.tvgLogo}" group-title="${channel.groupTitle}",${channel.name}\n${channel.url}\n`;
-	  });
-	  const filename = generateFilename('m3u');
-	  downloadFile(m3uContent, filename, 'audio/x-mpegurl');
-	};
-	// Show the new "Show All" button
-	document.getElementById('cancel-delete').classList.remove('hidden');
-	showingSelectedToDelete = true;
-
-		} else {
-		  saveState();
-		  undoButton.textContent = "WAIT...";
-		  undoButton.classList.add('bg-black');
-		  undoButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-700');
-		  setTimeout(() => {
-			const selectedVisibleToDelete = visibleChannels.filter(channel => channel.selected);
-			deletedChannels.push(...selectedVisibleToDelete);
-			selectedVisibleToDelete.forEach(deleted => {
-			  const indexInAll = allChannels.indexOf(deleted);
-			  if (indexInAll > -1) {
-				allChannels.splice(indexInAll, 1);
-			  }
-			});
-			if (previousFilter) {
-			  searchInput.value = previousFilter;
-			  filterChannels();
-			} else {
-			  visibleChannels = [...allChannels];
-			  renderTable(visibleChannels);
-			  updateGroupSuggestions();
-
-			}
-	updateStatus();
-	deleteSelectedButton.textContent = 'Delete Selected';
-	duplicatesActive = false;
-	duplicatesButton.textContent = 'Duplicates';
-	duplicatesButton.onclick = null;
-	// Restore the duplicates button's toggle functionality.
-	duplicatesButton.addEventListener('click', () => {
-		if (!duplicatesActive) {
-			const duplicates = allChannels.filter((channel, i, arr) =>
-				arr.some((other, j) => j !== i && other.url === channel.url)
-			);
-			visibleChannels = duplicates;
-			renderTable(visibleChannels);
-			duplicatesButton.textContent = "Show All";
-			duplicatesActive = true;
-		} else {
-			visibleChannels = [...allChannels];
-			renderTable(visibleChannels);
-			duplicatesButton.textContent = "Duplicates";
-			duplicatesActive = false;
-		}
-	});
-	showingSelectedToDelete = false;
-	previousFilter = null;
-	document.getElementById('cancel-delete').classList.add('hidden');
+        // This line needs to be inside the DOMContentLoaded or called after currentFile is set
+        // if (currentFileSpan) {
+        //     currentFileSpan.textContent = currentFile.name; // currentFile is null here initially
+        // }
 
 
-
-		  }, 0);
-		}
-	  });
-	  
-	  exportM3uButton.addEventListener('click', () => {
-		if (allChannels.length > 0) {
-		  const m3uContent = exportM3UContent(allChannels);
-		  const filename = generateFilename('m3u');
-		  downloadFile(m3uContent, filename, 'audio/x-mpegurl');
-		} else {
-		  alert('No channels to export.');
-		}
-	  });
-	  
-	  // Optional: If these buttons exist, they trigger their respective conversion functions.
-	  document.getElementById('m3uToXlsxButton')?.addEventListener('click', () => {
-		triggerM3UtoXLSX();
-	  });
-	  
-	  document.getElementById('xlsxToM3uButton')?.addEventListener('click', () => {
-		triggerXLSXtoM3U();
-	  });
-	  
-	  selectAllCheckbox.addEventListener('change', () => {
-		// During "select all", update the undo button to show "wait"
-		undoButton.textContent = "wait";
-		undoButton.classList.add('bg-black');
-		undoButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-700');
-	  
-		visibleChannels.forEach(channel => channel.selected = selectAllCheckbox.checked);
-		renderTable(visibleChannels);
-		updateStatus();
-	  
-		setTimeout(() => {
-		  undoButton.textContent = "Undo";
-		  undoButton.classList.remove('bg-black');
-		  undoButton.classList.add('bg-yellow-500', 'hover:bg-yellow-700');
-		}, 1000);
-	  });
-	  
-	  // Initial render
-	  renderTable(visibleChannels);
-	  updateStatus();
-	  
-	document.getElementById('popup-container').addEventListener('click', (event) => {
-		const playerContainer = document.querySelector("#popup-container div");
-		const player = document.getElementById('popup-player');
-
-		if (!playerContainer.contains(event.target)) {
-			document.getElementById('popup-container').classList.add('hidden');
-			if (player.hlsInstance) {
-				player.hlsInstance.destroy();
-				player.hlsInstance = null;
-			}
-			player.pause();
-			player.src = ""; // Reset player source
-		}
-	});
+        // Load button should trigger the hidden file input
+        if (loadButton) {
+             loadButton.addEventListener('click', () => {
+                 fileInput.click(); // Trigger the click on the hidden file input
+                 // updateGroupSuggestions(); // This should happen after a file is loaded and parsed
+             });
+        }
 
 
-	  
-	</script>
-	</body>
-	</html>
+        let allChannels = [];
+        let visibleChannels = [];
+        let deletedChannels = [];
+        let editedChannels = 0;
+        let history = [];
+        // Initializing currentFile to null is correct here
+        let currentFile = null;
+
+
+        // --- Utility Functions ---
+
+        function triggerM3UtoXLSX() {
+            document.getElementById('convertM3U').click();
+        }
+
+        function triggerXLSXtoM3U() {
+            document.getElementById('convertXLSX').click();
+        }
+
+        function handleM3UtoXLSX(file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const lines = event.target.result.split(/\r?\n/);
+                const data = [["Name", "Group", "Logo", "tvg-id", "URL"]];
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i].startsWith("#EXTINF")) {
+                        const info = lines[i];
+                        const url = lines[i + 1] || "";
+                        const name = (info.match(/,(.*)$/) || [])[1] || "Unknown";
+                        const logo = (info.match(/tvg-logo=\"(.*?)\"/) || [])[1] || "";
+                        const group = (info.match(/group-title=\"(.*?)\"/) || [])[1] || "";
+                        const tvgid = (info.match(/tvg-id=\"(.*?)\"/) || [])[1] || "";
+                        data.push([name, group, logo, tvgid, url]);
+                        i++;
+                    }
+                }
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Playlist");
+                const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                const blob = new Blob([new Uint8Array(excelBuffer)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
+                // Using the original filename without extra underscores
+                const filename = file.name.replace(/\.[^/.]+$/, "") + ".xlsx";
+
+                downloadFile(blob, filename, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8');
+            };
+            reader.readAsText(file);
+        }
+
+        function handleXLSXtoM3U(file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const data = new Uint8Array(event.target.result);
+                const workbook = XLSX.read(data, { type: "array" });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+                const [header, ...entries] = rows;
+                const m3u = ["#EXTM3U"];
+                for (let i = 0; i < entries.length; i++) {
+                    const row = entries[i];
+                    const name = row[0] || "";
+                    const group = row[1] || "";
+                    const logo = row[2] || "";
+                    const tvgid = row[3] || "";
+                    const url = row[4] || "";
+                    m3u.push(`#EXTINF:-1 tvg-id="${tvgid}" tvg-logo="${logo}" group-title="${group}",${name}`);
+                    m3u.push(url);
+                }
+                const m3uContent = m3u.join("\n");
+                // Export filename now preserves original name (no extra underscore)
+                const filename = file.name.replace(/\.[^/.]+$/, "") + ".m3u";
+
+                downloadFile(m3uContent, filename, 'text/plain;charset=utf-8');
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function exportM3UContent(channels) {
+            let m3uContent = "#EXTM3U\n";
+            channels.forEach(channel => {
+                m3uContent += `#EXTINF:-1 tvg-id="${channel.tvgId}" tvg-logo="${channel.tvgLogo}" group-title="${channel.groupTitle}",${channel.name}\n${channel.url}\n`;
+            });
+            return m3uContent;
+        }
+
+        function generateFilename(ext) {
+            return currentFile ? currentFile.name.replace(/\.[^/.]+$/, "") + "." + ext : 'playlist.' + ext;
+        }
+
+        function updateStatus() {
+            totalChannelsSpan.textContent = allChannels.length;
+            selectedChannelsSpan.textContent = allChannels.filter(channel => channel.selected).length;
+            deletedChannelsSpan.textContent = deletedChannels.length;
+            editedChannelsSpan.textContent = editedChannels;
+            currentFileSpan.textContent = currentFile ? currentFile.name : 'None'; // Set to 'None' if no file is selected
+        }
+
+        function saveState() {
+            history.push({
+                allChannels: JSON.parse(JSON.stringify(allChannels)),
+                deletedChannels: [...deletedChannels]
+            });
+            if (history.length > 10) {
+                history.shift();
+            }
+        }
+
+        function findDuplicateUrls() {
+            const urlCounts = {};
+            allChannels.forEach(channel => {
+                urlCounts[channel.url] = (urlCounts[channel.url] || 0) + 1;
+            });
+            visibleChannels = allChannels.filter(channel => urlCounts[channel.url] > 1);
+            renderTable(visibleChannels);
+            updateStatus();
+        }
+
+        function restoreState() {
+            if (history.length > 1) {
+                undoButton.textContent = "WAIT...";
+                undoButton.classList.add('bg-black');
+                undoButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-700');
+
+                setTimeout(() => {
+                    const previousState = history.pop();
+                    allChannels = previousState.allChannels;
+                    deletedChannels = previousState.deletedChannels;
+                    editedChannels = allChannels.filter(channel => channel.edited).length;
+                    applyFilters();
+                    renderTable(visibleChannels);
+                    updateStatus();
+
+                    setTimeout(() => {
+                        undoButton.textContent = "Undo";
+                        undoButton.classList.remove('bg-black');
+                        undoButton.classList.add('bg-yellow-500', 'hover:bg-yellow-700');
+                    }, 1000);
+                }, 1000);
+            } else {
+                alert("No previous state to undo.");
+            }
+        }
+
+        function autosave() {
+            const originalText = undoButton.textContent;
+            const originalBg = undoButton.style.backgroundColor;
+            // Note: Directly manipulating style.backgroundColor is less ideal than using classes
+            // but keeping it as per your code.
+            undoButton.style.backgroundColor = 'green';
+            undoButton.textContent = 'saved';
+            setTimeout(() => {
+                undoButton.style.backgroundColor = originalBg || '';
+                undoButton.textContent = originalText;
+            }, 1000);
+        }
+
+        function filterChannels() {
+            const searchTerm = searchInput.value.toLowerCase();
+            visibleChannels = allChannels.filter(channel => channel.name.toLowerCase().includes(searchTerm));
+            renderTable(visibleChannels);
+            updateStatus();
+        }
+
+        function updateGroupSuggestions() {
+            const groupSet = new Set();
+            allChannels.forEach(channel => {
+                if (channel.groupTitle) groupSet.add(channel.groupTitle);
+            });
+
+            const dataList = document.getElementById('group-suggestions');
+            dataList.innerHTML = ''; // Clear previous options
+            groupSet.forEach(group => {
+                const option = document.createElement('option');
+                option.value = group;
+                dataList.appendChild(option);
+            });
+        }
+
+        function applyFilters() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const groupTerm = groupFilterInput.value.toLowerCase();
+            const countryFilter = document.getElementById('country-filter').value;
+
+            visibleChannels = allChannels.filter(channel => {
+                const nameMatch = searchTerm ? channel.name.toLowerCase().includes(searchTerm) : true;
+                const groupMatch = groupTerm ? channel.groupTitle.toLowerCase().includes(groupTerm) : true;
+                let countryMatch = true;
+
+                if (countryFilter === "BLANK") {
+                    countryMatch = !channel.tvgId.match(/([A-Za-z]{2})$/);
+                } else if (countryFilter) {
+                    const match = channel.tvgId.match(/([A-Za-z]{2})$/);
+                    countryMatch = match && match[1].toUpperCase() === countryFilter.toUpperCase();
+                }
+
+                return nameMatch && groupMatch && countryMatch;
+            });
+
+            renderTable(visibleChannels);
+            updateStatus();
+        }
+
+        function applyCountryFilter() {
+            const countryFilter = document.getElementById('country-filter');
+            const selectedCountry = countryFilter.value;
+            if (selectedCountry === "") {
+                // No filtering – show all channels.
+                visibleChannels = [...allChannels];
+            } else if (selectedCountry === "BLANK") {
+                // Show channels with no country code.
+                visibleChannels = allChannels.filter(ch => !ch.tvgId.match(/([A-Za-z]{2})$/));
+            } else {
+                // Filter channels by country code.
+                visibleChannels = allChannels.filter(ch => {
+                    const match = ch.tvgId.match(/([A-Za-z]{2})$/);
+                    return match && match[1].toUpperCase() === selectedCountry.toUpperCase();
+                });
+            }
+            renderTable(visibleChannels);
+            updateStatus();
+        }
+
+        // findDuplicateUrls function was duplicated, removing the second one.
+        // function findDuplicateUrls() {
+        //     const urlCounts = {};
+        //     allChannels.forEach(channel => {
+        //         urlCounts[channel.url] = (urlCounts[channel.url] || 0) + 1;
+        //     });
+        //     visibleChannels = allChannels.filter(channel => urlCounts[channel.url] > 1);
+        //     renderTable(visibleChannels);
+        //     updateStatus();
+        // }
+
+
+        function downloadFile(content, filename, contentType) {
+            const a = document.createElement('a');
+            if (content instanceof Blob) {
+                a.href = URL.createObjectURL(content);
+            } else {
+                a.href = 'data:' + contentType + ',' + encodeURIComponent(content);
+            }
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // exportM3UContent function was duplicated, removing the second one.
+        // function exportM3UContent(channels) {
+        //     let m3uContent = "#EXTM3U\n";
+        //     channels.forEach(channel => {
+        //         m3uContent += `#EXTINF:-1 tvg-id="${channel.tvgId}" tvg-logo="${channel.tvgLogo}" group-title="${channel.groupTitle}",${channel.name}\n${channel.url}\n`;
+        //     });
+        //     return m3uContent;
+        // }
+
+        function renderTable(channels) {
+            playlistTableBody.innerHTML = '';
+            channels.forEach((channel, currentIndex) => {
+                const originalIndex = allChannels.indexOf(channel);
+                const row = playlistTableBody.insertRow();
+                row.classList.add('hover:bg-gray-100');
+                if (channel.selected) row.classList.add('selected-row');
+                if (channel.isEditing) row.classList.add('editing-row');
+                if (channel.edited) row.classList.add('edited');
+                if (channel.playedPermanently) row.classList.add('played-permanently');
+
+                // Checkbox cell
+                const selectCell = row.insertCell();
+                // Remove any horizontal padding classes; only add vertical padding if needed.
+                selectCell.classList.add('py-2');
+                // Ensure no horizontal padding remains:
+                selectCell.classList.remove('px-3');
+                selectCell.style.paddingLeft = "0px";
+                selectCell.style.paddingRight = "0px";
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.classList.add('row-select');
+                checkbox.checked = channel.selected;
+                // Also force the checkbox's own margins to zero.
+                checkbox.style.margin = "0px";
+
+                checkbox.addEventListener('change', () => {
+                    channel.selected = checkbox.checked;
+                    row.classList.toggle('selected-row', channel.selected);
+                    updateStatus();
+                });
+                selectCell.appendChild(checkbox);
+
+                // Number cell with reordering
+                const numberCell = row.insertCell();
+                numberCell.classList.add('channel-number', 'number-cell', 'cursor-pointer'); // Simplify padding classes
+                numberCell.style.width = "5px"; // Set fixed width
+                numberCell.style.padding = "0.1rem"; // Adjust padding for compactness
+                numberCell.style.textAlign = "center"; // Align content centrally
+                numberCell.textContent = originalIndex + 1;
+
+                numberCell.addEventListener('click', () => {
+                    const moveBefore = prompt(`Move channel #${originalIndex + 1} before channel # (enter number):`);
+                    if (moveBefore !== null && moveBefore.trim() !== '') {
+                        const targetIndex = parseInt(moveBefore) - 1;
+                        if (!isNaN(targetIndex) && targetIndex >= 0 && targetIndex < allChannels.length && targetIndex !== originalIndex) {
+                            saveState();
+                            undoButton.textContent = "WAIT...";
+                            undoButton.classList.add('bg-black');
+                            undoButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-700');
+                            setTimeout(() => {
+                                const channelToMove = allChannels[originalIndex];
+                                allChannels.splice(originalIndex, 1);
+                                allChannels.splice(targetIndex, 0, channelToMove);
+                                applyFilters();
+                                renderTable(visibleChannels);
+                                setTimeout(() => {
+                                    undoButton.textContent = "Undo";
+                                    undoButton.classList.remove('bg-black');
+                                    undoButton.classList.add('bg-yellow-500', 'hover:bg-yellow-700');
+                                }, 1000);
+                            }, 0);
+                        } else if (targetIndex === originalIndex) {
+                            alert("You entered the current channel number. No change made.");
+                        } else {
+                            alert("Invalid channel number entered.");
+                        }
+                    }
+                });
+
+                // Play cell
+                const playCell = row.insertCell();
+                playCell.classList.add('play-cell'); // Simplify padding classes
+                playCell.style.width = "10px"; // Set fixed width
+                playCell.style.padding = "0.1rem"; // Adjust padding for compactness
+                playCell.style.textAlign = "center"; // Align content centrally
+
+                const playButton = document.createElement('button');
+                playButton.textContent = '▶';
+                playButton.classList.add('bg-indigo-500', 'hover:bg-indigo-700', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'text-xs');
+
+                function showPopup() {
+                    const popupContainer = document.getElementById("popup-container");
+                    popupContainer.style.visibility = "visible";
+                    popupContainer.style.opacity = 1; // Makes it fully visible
+                }
+
+                function hidePopup() {
+                    const popupContainer = document.getElementById("popup-container");
+                    popupContainer.style.opacity = 0; // Starts fade-out
+                    setTimeout(() => {
+                        popupContainer.style.visibility = "hidden";
+                    }, 300); // Matches the transition duration
+                }
+
+                // Attach to play button click and popup-container click
+                playButton.addEventListener("click", showPopup);
+                 // Removed the document.getElementById("popup-container").addEventListener("click", hidePopup);
+                 // This listener is attached globally later to handle clicks outside the player.
+
+
+                // Play button functionality
+                playButton.addEventListener("click", async () => {
+                    row.classList.add("played-permanently"); // Highlight row as soon as Play is clicked
+
+                    const popupContainer = document.getElementById("popup-container");
+                    const player = document.getElementById("popup-player");
+                    const streamUrl = channel.url;
+
+                    if (!popupContainer || !player) {
+                        console.error("Popup elements not found!");
+                        return;
+                    }
+
+                    // Destroy previous HLS instance if exists
+                    if (player.hlsInstance) {
+                        player.hlsInstance.destroy();
+                        player.hlsInstance = null;
+                    }
+
+                    try {
+                        const response = await fetch(streamUrl, { method: "GET" });
+
+                        if (!response.ok) {
+                            handleStreamError(streamUrl, channel); // Show error ONLY if stream fails
+                            return;
+                        }
+                    } catch (error) {
+                        console.error("Stream request blocked:", error);
+                        handleStreamError(streamUrl, channel); // Show error ONLY if stream fails
+                        return;
+                    }
+
+                    // Handle HLS streams properly
+                    if (streamUrl.includes(".m3u8")) {
+                        if (Hls.isSupported()) {
+                            const hls = new Hls();
+                            hls.loadSource(streamUrl);
+                            hls.attachMedia(player);
+                            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                                player.play();
+                            });
+                            hls.on(Hls.Events.ERROR, (event, data) => {
+                                console.error("HLS Error:", data);
+                                handleStreamError(streamUrl, channel); // Show error ONLY if stream fails
+                            });
+                            player.hlsInstance = hls;
+                        } else {
+                             // Fallback for browsers that don't support HLS.js but support native HLS
+                            player.src = streamUrl;
+                            player.addEventListener("error", () => handleStreamError(streamUrl, channel));
+                            player.load();
+                            player.play();
+                        }
+                    } else {
+                        player.src = streamUrl;
+                        player.addEventListener("error", () => handleStreamError(streamUrl, channel));
+                        player.load();
+                        player.play();
+                    }
+
+                    channel.played = true;
+                    channel.playedPermanently = true;
+                    row.classList.add("played-permanently");
+
+                    popupContainer.classList.remove("hidden");
+                });
+
+                playCell.appendChild(playButton);
+
+                // Force remove horizontal padding from the first cell of all rows.
+                // This line is better placed outside the loop or handled by CSS
+                // document.querySelectorAll("#playlist-table-body tr td:first-child").forEach(cell => {
+                // 	cell.style.paddingLeft = "0px";
+                // 	cell.style.paddingRight = "0px";
+                // });
+
+
+                function handleStreamError(streamUrl, channel) {
+                    if (document.getElementById('error-message')) return; // Prevent duplicate popups
+
+                    // **Auto-generate M3U for streams known to work in VLC**
+                    if (streamUrl.includes("tvpass.org") || streamUrl.includes("stremioaddon")) {
+                        const m3uContent = `#EXTM3U\n#EXTINF:-1,${channel.name}\n${streamUrl}`;
+                        const blob = new Blob([m3uContent], { type: 'application/vnd.apple.mpegurl' });
+                        const downloadLink = document.createElement("a");
+                        downloadLink.href = URL.createObjectURL(blob);
+                        downloadLink.download = `${channel.name.replace(/[^a-zA-Z0-9]/g, '')}.m3u`;
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                        return; // Exit function since we don't need an error message
+                    }
+
+                    // **Show Error Message for Streams That Fail**
+                    const errorMessage = document.createElement("div");
+                    errorMessage.id = "error-message";
+                    errorMessage.innerHTML = `
+                        <p>Failed to load the stream—possibly due to restrictions.</p>
+                        <button id="download-m3u" class="bg-blue-500 text-white px-3 py-1 rounded">Download M3U</button>
+                        <button id="cancel-playback" class="bg-gray-500 text-white px-3 py-1 rounded">Cancel</button>
+                    `;
+                    errorMessage.style.position = "fixed";
+                    errorMessage.style.top = "50%";
+                    errorMessage.style.left = "50%";
+                    errorMessage.style.transform = "translate(-50%, -50%)";
+                    errorMessage.style.background = "white";
+                    errorMessage.style.padding = "10px";
+                    errorMessage.style.borderRadius = "5px";
+                    errorMessage.style.boxShadow = "0 2px 10px rgba(0,0,0,0.2)";
+                    document.body.appendChild(errorMessage);
+
+                    // **Ensure Buttons Work Properly by Attaching Listeners AFTER Creation**
+                    setTimeout(() => {
+                        document.getElementById("download-m3u").addEventListener("click", () => {
+                            const m3uContent = `#EXTM3U\n#EXTINF:-1,${channel.name}\n${streamUrl}`;
+                            const blob = new Blob([m3uContent], { type: 'application/vnd.apple.mpegurl' });
+                            const downloadLink = document.createElement("a");
+                            downloadLink.href = URL.createObjectURL(blob);
+                            downloadLink.download = `${channel.name.replace(/[^a-zA-Z0-9]/g, '')}.m3u`;
+                            document.body.appendChild(downloadLink);
+                            downloadLink.click();
+                            document.body.removeChild(downloadLink);
+                            document.body.removeChild(errorMessage); // Remove error box
+                        });
+
+                        document.getElementById("cancel-playback").addEventListener("click", () => {
+                            document.body.removeChild(errorMessage);
+                        });
+                    }, 100); // Ensure UI elements are ready before attaching listeners
+                }
+
+                // Logo cell
+                const logoCell = row.insertCell();
+                logoCell.classList.add('py-2', 'px-3', 'logo-cell');
+
+                const logoImg = document.createElement("img");
+                logoImg.src = channel.tvgLogo || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=";
+                logoImg.alt = "Logo";
+                logoImg.classList.add("logo-img");
+
+                logoCell.appendChild(logoImg);
+                logoImg.addEventListener('click', () => {
+                    const newLogoUrl = prompt("Enter new logo URL:", channel.tvgLogo);
+                    if (newLogoUrl !== null) {
+                        saveState();
+                        channel.tvgLogo = newLogoUrl;
+                        logoImg.src = newLogoUrl;
+                        channel.edited = true;
+                        row.classList.add('edited');
+                        autosave(); // Autosave after edit
+                    }
+                    // autosave(); // No need to autosave if prompt is cancelled
+                });
+
+                // Name cell with inline editing
+                const nameCell = row.insertCell();
+                nameCell.classList.add('py-2', 'px-3', 'name-cell');
+                const nameInput = document.createElement('input');
+                nameInput.type = 'text';
+                nameInput.value = channel.name;
+                nameInput.classList.add('shadow-inner', 'border', 'rounded', 'py-1', 'px-2', 'text-gray-700', 'leading-tight', 'focus:outline-none', 'focus:shadow-outline', 'text-sm', 'w-full');
+                nameInput.addEventListener('focus', () => {
+                    row.classList.add('editing-row');
+                    channel.isEditing = true;
+                });
+                nameInput.addEventListener('blur', () => {
+                    row.classList.remove('editing-row');
+                    channel.isEditing = false;
+                    if (channel.name !== nameInput.value) {
+                        saveState();
+                        channel.name = nameInput.value;
+                        editedChannels++;
+                        channel.edited = true;
+                        row.classList.add('edited');
+                        autosave(); // Autosave after edit
+                    }
+                    // applyFilters(); // Filtering on blur might be disruptive, consider only on input change or button click
+                });
+                nameCell.appendChild(nameInput);
+
+                // Group cell with inline editing
+                const groupCell = row.insertCell();
+                groupCell.classList.add('py-2', 'px-3', 'group-cell');
+
+                const groupInput = document.createElement('input');
+                groupInput.type = 'text';
+                groupInput.value = channel.groupTitle;
+                groupInput.classList.add('shadow-inner', 'border', 'rounded', 'py-1', 'px-2', 'text-gray-700', 'leading-tight', 'focus:outline-none', 'focus:shadow-outline', 'text-sm', 'w-full');
+                groupInput.setAttribute('list', 'group-suggestions');
+
+                groupInput.addEventListener('focus', () => {
+                    groupInput.select();
+                    row.classList.add('editing-row');
+                    channel.isEditing = true;
+                });
+                groupInput.addEventListener('blur', () => {
+                    row.classList.remove('editing-row');
+                    channel.isEditing = false;
+                    const newGroupTitle = groupInput.value.trim();
+                    if (channel.groupTitle !== newGroupTitle) {
+                        saveState();
+                        channel.groupTitle = newGroupTitle;
+                        editedChannels++;
+                        channel.edited = true;
+                        row.classList.add('edited');
+                        applyFilters(); // Apply filter after group change
+                        // renderTable(visibleChannels); // renderTable is called inside applyFilters
+                        updateStatus();
+                        autosave(); // Autosave after edit
+                    }
+                    // applyFilters(); // Duplicate call
+                });
+                groupCell.appendChild(groupInput);
+
+                // Country cell (derived from tvg-id)
+                const countryCell = row.insertCell();
+                countryCell.classList.add('py-2', 'px-3', 'country-cell');
+                const countryCodeMatch = channel.tvgId.match(/([A-Za-z]{2})$/);
+                countryCell.textContent = countryCodeMatch ? countryCodeMatch[1].toUpperCase() : '';
+
+                // Copy URL cell
+                const copyButtonCell = row.insertCell();
+                copyButtonCell.classList.add('py-2', 'px-3', 'copy-url-cell');
+                const copyButton = document.createElement('button');
+                copyButton.textContent = 'Copy URL';
+                copyButton.classList.add('bg-gray-400', 'hover:bg-gray-500', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'text-xs');
+                copyButton.addEventListener('click', () => {
+                    const originalText = copyButton.textContent;
+                    const originalClasses = [...copyButton.classList];
+                    navigator.clipboard.writeText(channel.url).then(() => {
+                        copyButton.textContent = 'COPIED';
+                        copyButton.classList.remove(...originalClasses);
+                        copyButton.classList.add('bg-yellow-500', 'text-black', 'font-bold', 'py-1', 'px-2', 'rounded', 'text-xs');
+                        row.classList.add('played-permanently'); // This might be unintentional, playedPermanently usually relates to playback
+                        setTimeout(() => {
+                            copyButton.textContent = originalText;
+                            copyButton.classList.remove('bg-yellow-500', 'text-black');
+                            copyButton.classList.add(...originalClasses);
+                        }, 1500);
+                    }).catch(() => {
+                        alert('Failed to copy URL to clipboard.');
+                    });
+                });
+                copyButtonCell.appendChild(copyButton);
+            });
+            updateStatus();
+            populateCountryDropdown(); // Populate country dropdown after rendering table
+        }
+
+        function populateCountryDropdown() {
+            const countryFilter = document.getElementById('country-filter');
+            // Set the initial options to use your preferred labels.
+            countryFilter.innerHTML = '<option value="">All</option><option value="BLANK">Blank</option>';
+
+            // Create a set to capture unique country codes.
+            const countrySet = new Set();
+            allChannels.forEach(channel => {
+                // Extract the two-letter country code at the end of tvgId (if present).
+                const match = channel.tvgId && channel.tvgId.match(/([A-Za-z]{2})$/);
+                if (match) {
+                    countrySet.add(match[1].toUpperCase());
+                }
+            });
+
+            // Append each unique country code (sorted alphabetically) as an option.
+            Array.from(countrySet)
+                .sort()
+                .forEach(code => {
+                    const option = document.createElement('option');
+                    option.value = code;
+                    option.textContent = code;
+                    countryFilter.appendChild(option);
+                });
+        }
+
+
+        const cancelDeleteButton = document.getElementById('cancel-delete');
+        if (cancelDeleteButton) {
+             cancelDeleteButton.addEventListener('click', () => {
+                 // Cancel the pending delete operation and show the full list.
+                 visibleChannels = [...allChannels];
+                 renderTable(visibleChannels);
+                 updateStatus();
+                 // Reset the delete selected button.
+                 deleteSelectedButton.textContent = 'Delete Selected';
+                 // Reset duplicates toggle status.
+                 duplicatesActive = false;
+                 // Restore the duplicates button's toggle functionality.
+                 duplicatesButton.textContent = 'Duplicates';
+                 // Ensure only the correct duplicates listener is active
+                 duplicatesButton.removeEventListener('click', handleDuplicatesButtonClick); // Remove old listener
+                 duplicatesButton.addEventListener('click', handleDuplicatesButtonClick); // Add the correct listener
+
+                 showingSelectedToDelete = false;
+                 previousFilter = null;
+                 // Hide the cancel button.
+                 cancelDeleteButton.classList.add('hidden');
+             });
+        }
+
+
+        // Define the duplicates button logic in a named function to easily remove/add
+        function handleDuplicatesButtonClick() {
+             if (!duplicatesActive) {
+                 const duplicates = allChannels.filter((channel, i, arr) =>
+                     arr.some((other, j) => j !== i && other.url === channel.url)
+                 );
+                 visibleChannels = duplicates;
+                 renderTable(visibleChannels);
+                 duplicatesButton.textContent = "Show All";
+                 duplicatesActive = true;
+             } else {
+                 visibleChannels = [...allChannels];
+                 renderTable(visibleChannels);
+                 duplicatesButton.textContent = "Duplicates";
+                 duplicatesActive = false;
+             }
+        }
+
+
+        // Add event listeners inside DOMContentLoaded to ensure elements exist
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize elements here after the DOM is ready
+            const fileInput = document.getElementById('file-input'); // Get the created element
+            // const currentFileSpan = document.getElementById('current-file-span'); // This ID does not exist, use 'current-file'
+            const undoButton = document.getElementById('undo-button');
+            const searchInput = document.getElementById('search-input');
+            const groupFilterInput = document.getElementById('group-filter-input');
+            const duplicatesButton = document.getElementById('duplicates-button');
+            const countryFilterDropdown = document.getElementById('country-filter'); // Get the country filter
+
+            // File input change event - moved inside DOMContentLoaded
+            if (fileInput) {
+                fileInput.addEventListener('change', (event) => {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    currentFile = file; // Assign selected file
+
+                    // Process the file based on its type
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const content = e.target.result;
+                        if (file.name.endsWith('.m3u') || file.name.endsWith('.m3u8')) {
+                            parseM3U(content);
+                        } else if (file.name.endsWith('.xlsx')) {
+                             parseXLSX(content);
+                        }
+                         updateGroupSuggestions(); // Update suggestions after parsing
+                         populateCountryDropdown(); // Populate country filter after parsing
+                         updateStatus(); // Update UI with the new file and channel counts
+                    };
+
+                     if (file.name.endsWith('.m3u') || file.name.endsWith('.m3u8')) {
+                         reader.readAsText(file);
+                     } else if (file.name.endsWith('.xlsx')) {
+                          reader.readAsArrayBuffer(file);
+                     }
+                });
+            } else {
+                console.error('File input element not found.');
+            }
+
+             // Define parsing functions (assuming these were intended to be used by fileInput change)
+             function parseM3U(content) {
+                 const lines = content.split(/\r?\n/);
+                 const channels = [];
+                 let currentChannel = null;
+
+                 for (const line of lines) {
+                     if (line.startsWith('#EXTINF')) {
+                         if (currentChannel) {
+                             // Should not happen with valid M3U but as a safeguard
+                             channels.push(currentChannel);
+                         }
+                         currentChannel = {
+                             name: (line.match(/,(.*)$/) || [])[1] || "Unknown",
+                             url: '', // Will be filled by the next line
+                             tvgId: (line.match(/tvg-id="(.*?)"/) || [])[1] || "",
+                             tvgLogo: (line.match(/tvg-logo="(.*?)"/) || [])[1] || "",
+                             groupTitle: (line.match(/group-title="(.*?)"/) || [])[1] || "",
+                             selected: false,
+                             edited: false,
+                             isEditing: false,
+                             played: false,
+                             playedPermanently: false
+                         };
+                     } else if (line.startsWith('http') && currentChannel) {
+                         currentChannel.url = line.trim();
+                         channels.push(currentChannel);
+                         currentChannel = null; // Reset for the next channel
+                     }
+                 }
+
+                 allChannels = channels;
+                 visibleChannels = [...allChannels];
+                 deletedChannels = [];
+                 editedChannels = 0;
+                 history = [];
+                 saveState(); // Save initial state
+                 renderTable(visibleChannels);
+             }
+
+             function parseXLSX(content) {
+                 const data = new Uint8Array(content);
+                 const workbook = XLSX.read(data, { type: "array" });
+                 const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                 const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+                 const [header, ...entries] = rows;
+                 const channels = [];
+
+                 for (const row of entries) {
+                     // Assuming column order: Name, Group, Logo, tvg-id, URL
+                      if (row.length >= 5) { // Ensure row has at least 5 columns
+                         channels.push({
+                             name: row[0] || "Unknown",
+                             groupTitle: row[1] || "",
+                             tvgLogo: row[2] || "",
+                             tvgId: row[3] || "",
+                             url: row[4] || "",
+                             selected: false,
+                             edited: false,
+                             isEditing: false,
+                             played: false,
+                             playedPermanently: false
+                         });
+                      }
+                 }
+
+                 allChannels = channels;
+                 visibleChannels = [...allChannels];
+                 deletedChannels = [];
+                 editedChannels = 0;
+                 history = [];
+                 saveState(); // Save initial state
+                 renderTable(visibleChannels);
+             }
+
+
+            // Initialize status bar text for current file
+            if (currentFileSpan) {
+                currentFileSpan.textContent = currentFile ? currentFile.name : 'None';
+            }
+
+            // Other event listeners - ensure they are attached only once
+            if (searchInput) {
+                searchInput.addEventListener('input', applyFilters); // Use applyFilters for combined filtering
+            }
+
+            if (groupFilterInput) {
+                groupFilterInput.addEventListener('input', applyFilters); // Use applyFilters
+                groupFilterInput.setAttribute('list', 'group-suggestions');
+            }
+
+            if (duplicatesButton) {
+                 // Remove the listener added outside DOMContentLoaded if it was attached
+                 duplicatesButton.removeEventListener('click', handleDuplicatesButtonClick);
+                 duplicatesButton.addEventListener('click', handleDuplicatesButtonClick);
+            }
+
+             if (countryFilterDropdown) {
+                  countryFilterDropdown.addEventListener('change', applyFilters); // Use applyFilters
+             }
+
+
+            // Attach the undo button listener inside DOMContentLoaded
+            if (undoButton) {
+                 undoButton.addEventListener('click', restoreState);
+            }
+
+            let showingSelectedToDelete = false;
+            let previousFilter = null;
+
+            if (deleteSelectedButton) {
+                deleteSelectedButton.addEventListener('click', () => {
+                    if (!showingSelectedToDelete) {
+                        previousFilter = searchInput.value;
+                        const selectedChannels = allChannels.filter(channel => channel.selected);
+                        visibleChannels = selectedChannels;
+                        renderTable(visibleChannels);
+                        searchInput.value = '';
+                        updateStatus();
+                        // Change button text to confirm deletion,
+                        // and temporarily convert the duplicates button to export selected channels.
+                        deleteSelectedButton.textContent = `Confirm Delete (${selectedChannels.length})`;
+                        // Remove the duplicates button's default listener temporarily
+                        duplicatesButton.removeEventListener('click', handleDuplicatesButtonClick);
+                        duplicatesButton.textContent = 'Export Selected';
+                        duplicatesButton.onclick = function() {
+                            let m3uContent = "#EXTM3U\n";
+                            selectedChannels.forEach(channel => {
+                                m3uContent += `#EXTINF:-1 tvg-id="${channel.tvgId}" tvg-logo="${channel.tvgLogo}" group-title="${channel.groupTitle}",${channel.name}\n${channel.url}\n`;
+                            });
+                            const filename = generateFilename('m3u');
+                            downloadFile(m3uContent, filename, 'audio/x-mpegurl');
+                        };
+                        // Show the new "Show All" button
+                        const cancelDeleteButton = document.getElementById('cancel-delete');
+                        if (cancelDeleteButton) {
+                            cancelDeleteButton.classList.remove('hidden');
+                        }
+                        showingSelectedToDelete = true;
+
+                    } else {
+                         // Add a confirmation prompt before permanent deletion
+                        const confirmDelete = confirm(`Are you sure you want to permanently delete ${visibleChannels.length} selected channels?`);
+                        if (!confirmDelete) {
+                            // User cancelled the permanent delete, reset the view
+                            if (previousFilter) {
+                                searchInput.value = previousFilter;
+                                applyFilters();
+                            } else {
+                                visibleChannels = [...allChannels];
+                                renderTable(visibleChannels);
+                            }
+                             updateStatus();
+                             deleteSelectedButton.textContent = 'Delete Selected';
+                             duplicatesActive = false;
+                             duplicatesButton.textContent = 'Duplicates';
+                             duplicatesButton.onclick = null;
+                             duplicatesButton.removeEventListener('click', handleDuplicatesButtonClick); // Ensure no duplicates
+                             duplicatesButton.addEventListener('click', handleDuplicatesButtonClick);
+                             showingSelectedToDelete = false;
+                             previousFilter = null;
+                             const cancelDeleteButton = document.getElementById('cancel-delete');
+                             if (cancelDeleteButton) {
+                                 cancelDeleteButton.classList.add('hidden');
+                             }
+                            return; // Stop the deletion process
+                        }
+
+
+                        saveState(); // Save state before permanent delete
+                        undoButton.textContent = "WAIT...";
+                        undoButton.classList.add('bg-black');
+                        undoButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-700');
+                        setTimeout(() => {
+                            const selectedVisibleToDelete = visibleChannels.filter(channel => channel.selected);
+                            deletedChannels.push(...selectedVisibleToDelete);
+                            // Filter out the deleted channels from allChannels
+                            allChannels = allChannels.filter(channel => !selectedVisibleToDelete.includes(channel));
+
+                            if (previousFilter) {
+                                searchInput.value = previousFilter;
+                                applyFilters();
+                            } else {
+                                visibleChannels = [...allChannels];
+                                renderTable(visibleChannels);
+                                updateGroupSuggestions();
+                                populateCountryDropdown(); // Repopulate country filter after deletion
+                            }
+                            updateStatus();
+                            deleteSelectedButton.textContent = 'Delete Selected';
+                            duplicatesActive = false;
+                            duplicatesButton.textContent = 'Duplicates';
+                            duplicatesButton.onclick = null;
+                            duplicatesButton.removeEventListener('click', handleDuplicatesButtonClick); // Ensure no duplicates
+                            duplicatesButton.addEventListener('click', handleDuplicatesButtonClick);
+                            showingSelectedToDelete = false;
+                            previousFilter = null;
+                            const cancelDeleteButton = document.getElementById('cancel-delete');
+                            if (cancelDeleteButton) {
+                                cancelDeleteButton.classList.add('hidden');
+                            }
+                             // Show undo button is ready after state restore
+                             setTimeout(() => {
+                                undoButton.textContent = "Undo";
+                                undoButton.classList.remove('bg-black');
+                                undoButton.classList.add('bg-yellow-500', 'hover:bg-yellow-700');
+                              }, 1000);
+
+
+                        }, 0);
+                    }
+                });
+            }
+
+
+            if (exportM3uButton) {
+                 exportM3uButton.addEventListener('click', () => {
+                     if (allChannels.length > 0) {
+                         const m3uContent = exportM3UContent(allChannels);
+                         const filename = generateFilename('m3u');
+                         downloadFile(m3uContent, filename, 'audio/x-mpegurl'); // Use correct mime type for m3u
+                     } else {
+                         alert('No channels to export.');
+                     }
+                 });
+            }
+
+            // Optional: If these buttons exist, they trigger their respective conversion functions.
+            // These should probably load/save files instead of just triggering clicks
+            // document.getElementById('m3uToXlsxButton')?.addEventListener('click', () => {
+            // 	triggerM3UtoXLSX();
+            // });
+            //
+            // document.getElementById('xlsxToM3uButton')?.addEventListener('click', () => {
+            // 	triggerXLSXtoM3U();
+            // });
+
+
+            if (selectAllCheckbox && playlistTableBody) {
+                selectAllCheckbox.addEventListener('change', () => {
+                    // During "select all", update the undo button to show "wait"
+                     if (undoButton) { // Check if undoButton exists
+                         undoButton.textContent = "wait";
+                         undoButton.classList.add('bg-black');
+                         undoButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-700');
+                     }
+
+                    // Iterate through visible channels to select/deselect
+                     visibleChannels.forEach(channel => channel.selected = selectAllCheckbox.checked);
+
+                    // Update the UI of the currently rendered rows
+                    playlistTableBody.querySelectorAll('.row-select').forEach(checkbox => {
+                         checkbox.checked = selectAllCheckbox.checked;
+                         const row = checkbox.closest('tr');
+                         if (row) {
+                              row.classList.toggle('selected-row', selectAllCheckbox.checked);
+                         }
+                    });
+
+
+                    updateStatus();
+
+                     if (undoButton) { // Check if undoButton exists before using setTimeout
+                         setTimeout(() => {
+                             undoButton.textContent = "Undo";
+                             undoButton.classList.remove('bg-black');
+                             undoButton.classList.add('bg-yellow-500', 'hover:bg-yellow-700');
+                         }, 1000);
+                     }
+                });
+            }
+
+
+            // Listener to close the popup when clicking outside the video player
+            const popupContainer = document.getElementById('popup-container');
+            if (popupContainer) {
+                 popupContainer.addEventListener('click', (event) => {
+                     const playerContainer = popupContainer.querySelector("div"); // Get the div inside the container
+                     const player = document.getElementById('popup-player');
+
+                     // Check if the click occurred directly on the container and not inside the player div
+                     if (event.target === popupContainer) { // Corrected check
+                         popupContainer.classList.add('hidden');
+                         if (player && player.hlsInstance) {
+                             player.hlsInstance.destroy();
+                             player.hlsInstance = null;
+                         }
+                         if (player) {
+                              player.pause();
+                              player.src = ""; // Reset player source
+                         }
+                     }
+                 });
+            }
+
+
+            // Initial render and status update on page load
+            renderTable(visibleChannels);
+            updateStatus();
+            populateCountryDropdown(); // Populate country filter initially
+        }); // End of DOMContentLoaded listener
+    </script>
+</body>
+</html>
