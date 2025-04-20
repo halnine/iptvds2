@@ -157,22 +157,16 @@ input[type="checkbox"] {
 
 #popup-container {
     position: fixed; /* Covers the entire viewport */
-    inset: 0; /* Aligns the container with the screen edges */
-    background-color: rgba(0, 0, 0, 0.75); /* Semi-transparent background */
-    z-index: 100; /* Ensure it overlays sticky elements */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden; /* Prevent scrollbars */
+    inset: 0; /* Positions the container to fill the screen */
+    background-color: rgba(0, 0, 0, 0.75); /* Semi-transparent black background */
+    z-index: 100; /* Ensure it is above sticky elements */
+    display: flex; /* For centering the player */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    visibility: hidden; /* Start hidden */
+    opacity: 0; /* Transparent by default */
+    transition: opacity 0.3s ease-in-out; /* Smooth fade-in/out effect */
 }
-
-@media (max-width: 768px) { /* Center popup for mobile screens */
-    #popup-container > div {
-        width: 90%; /* Shrink width for smaller screens */
-        height: auto; /* Allow dynamic height */
-    }
-}
-
 
 
 
