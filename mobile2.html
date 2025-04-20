@@ -686,69 +686,25 @@ playButton.addEventListener("click", showPopup);
 document.getElementById("popup-container").addEventListener("click", hidePopup);
 
 
-// Play button functionality
-
-
-	playButton.addEventListener("click", async () => {
-    row.classList.add("played-permanently"); // Highlight row as soon as Play is clicked
-
-    const popupContainer = document.getElementById("popup-container");
-    const player = document.getElementById("popup-player");
+playButton.addEventListener("click", async () => {
     const streamUrl = channel.url;
+    const player = document.getElementById("popup-player");
 
-    if (!popupContainer || !player) {
-        console.error("Popup elements not found!");
-        return;
-    }
-
-    // Destroy previous HLS instance if exists
-    if (player.hlsInstance) {
-        player.hlsInstance.destroy();
-        player.hlsInstance = null;
-    }
-
-    try {
-        const response = await fetch(streamUrl, { method: "GET" });
-
-        if (!response.ok) {
-            handleStreamError(streamUrl, channel); // Show error ONLY if stream fails
-            return;
-        }
-    } catch (error) {
-        console.error("Stream request blocked:", error);
-        handleStreamError(streamUrl, channel); // Show error ONLY if stream fails
-        return;
-    }
-
-    // Handle HLS streams properly
-    if (streamUrl.includes(".m3u8")) {
-        if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(streamUrl);
-            hls.attachMedia(player);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                player.play();
-            });
-            hls.on(Hls.Events.ERROR, (event, data) => {
-                console.error("HLS Error:", data);
-                handleStreamError(streamUrl, channel); // Show error ONLY if stream fails
-            });
-            player.hlsInstance = hls;
-        } else {
-            handleStreamError(streamUrl, channel);
-        }
+    if (streamUrl.includes(".m3u8") && Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(streamUrl);
+        hls.attachMedia(player);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            player.play();
+        });
     } else {
-        player.src = streamUrl;
-        player.addEventListener("error", () => handleStreamError(streamUrl, channel));
+        player.src = streamUrl; // Use direct URL for non-HLS streams
+        player.addEventListener("error", () => {
+            alert("Stream is not supported on mobile browsers.");
+        });
         player.load();
         player.play();
     }
-
-    channel.played = true;
-    channel.playedPermanently = true;
-    row.classList.add("played-permanently");
-
-    popupContainer.classList.remove("hidden");
 });
 
 playCell.appendChild(playButton);
