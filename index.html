@@ -74,8 +74,6 @@ body {
     text-align: left; /* Align content properly */
 }
 
-
-
 .sticky-buttons {
     position: sticky; /* Make the button row sticky */
     top: 2rem; /* Position directly below the status bar */
@@ -153,6 +151,21 @@ input[type="checkbox"] {
     height: 16px;
     background-color: white;
 }
+
+#popup-container {
+    position: fixed; /* Covers the entire viewport */
+    inset: 0; /* Positions the container to fill the screen */
+    background-color: rgba(0, 0, 0, 0.75); /* Semi-transparent black background */
+    z-index: 100; /* Ensure it is above sticky elements */
+    display: flex; /* For centering the player */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    visibility: hidden; /* Start hidden */
+    opacity: 0; /* Transparent by default */
+    transition: opacity 0.3s ease-in-out; /* Smooth fade-in/out effect */
+}
+
+
 
   </style>
 </head>
@@ -244,8 +257,6 @@ input[type="checkbox"] {
     </div>
 </div>
 
-
-
   </div>
 
  <div class="p-4">
@@ -270,6 +281,16 @@ input[type="checkbox"] {
 </table>
 
   </div>
+
+
+<div id="popup-container" class="hidden fixed inset-0 flex justify-center items-center bg-black bg-opacity-75">
+    <div class="relative w-[400px] h-[240px] bg-gray-900 rounded-lg shadow-lg">
+        <video id="popup-player" controls class="w-full h-full">
+            <source id="popup-video-source" src="" type="application/x-mpegURL">
+            Your browser does not support video playback.
+        </video>
+    </div>
+</div>
 
 
 <script>
@@ -638,6 +659,26 @@ playCell.style.textAlign = "center"; // Align content centrally
 const playButton = document.createElement('button');
 playButton.textContent = '▶';
 playButton.classList.add('bg-indigo-500', 'hover:bg-indigo-700', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'text-xs');
+
+
+function showPopup() {
+    const popupContainer = document.getElementById("popup-container");
+    popupContainer.style.visibility = "visible";
+    popupContainer.style.opacity = 1; // Makes it fully visible
+}
+
+function hidePopup() {
+    const popupContainer = document.getElementById("popup-container");
+    popupContainer.style.opacity = 0; // Starts fade-out
+    setTimeout(() => {
+        popupContainer.style.visibility = "hidden";
+    }, 300); // Matches the transition duration
+}
+
+// Attach to play button click and popup-container click
+playButton.addEventListener("click", showPopup);
+document.getElementById("popup-container").addEventListener("click", hidePopup);
+
 
 // Play button functionality
 
