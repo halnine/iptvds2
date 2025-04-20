@@ -74,22 +74,26 @@ body {
     text-align: left; /* Align content properly */
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px) { /* Target mobile screens */
     .sticky-buttons {
-        flex-wrap: wrap; /* Enable wrapping on smaller screens */
-        justify-content: center; /* Center the buttons */
-        gap: 0.5rem; /* Add space between buttons */
-        padding: 0.5rem; /* Maintain padding consistency */
-        height: auto; /* Allow the row to expand */
+        display: flex; /* Use a flex container */
+        flex-wrap: wrap; /* Enable wrapping for buttons */
+        justify-content: center; /* Align buttons to the center */
+        gap: 0.5rem; /* Add spacing between buttons */
+        padding: 0.5rem; /* Keep consistent padding */
+        height: auto; /* Allow the height to adjust dynamically */
     }
 
     button {
-        width: auto; /* Let buttons adjust based on content */
+        flex: 1 1 40%; /* Each button takes 40% width, allowing wrapping */
         max-width: 120px; /* Prevent overly large buttons */
-        font-size: 0.8rem; /* Adjust font size for compactness */
-        height: 2.5rem; /* Ensure consistent button height */
-        padding: 0.25rem 0.5rem; /* Compact button padding */
+        min-width: 90px; /* Ensure buttons aren’t too small */
+        font-size: 0.8rem; /* Adjust text size for mobile */
+        height: 2.5rem; /* Consistent height */
+        padding: 0.25rem 0.5rem; /* Compact padding for better fit */
     }
+}
+
 
     /* Adjust channel and group filter widths */
     #search-input, #group-filter-input {
