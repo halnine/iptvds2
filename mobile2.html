@@ -74,21 +74,23 @@ body {
     text-align: left; /* Align content properly */
 }
 
-@media (max-width: 768px) { /* Target screens smaller than 768px */
+@media (max-width: 768px) {
     .sticky-buttons {
-        flex-wrap: wrap; /* Enable wrapping */
-        justify-content: center; /* Center buttons */
+        flex-wrap: wrap; /* Enable wrapping on smaller screens */
+        justify-content: center; /* Align buttons to center */
         gap: 0.5rem; /* Add space between buttons */
-        padding: 0.5rem; /* Ensure padding is consistent */
-        height: auto; /* Allow dynamic height based on content */
+        padding: 0.5rem; /* Consistent padding */
+        height: auto; /* Allow height adjustment */
     }
 
     button {
-        min-width: 100px; /* Ensure buttons remain readable */
-        font-size: 0.8rem; /* Adjust font size for mobile */
+        width: auto; /* Prevent buttons from being overly wide */
+        min-width: 100px; /* Set a reasonable minimum width */
+        max-width: 150px; /* Prevent excessive button width */
+        font-size: 0.8rem; /* Reduce font size for smaller screens */
+        padding: 0.5rem; /* Ensure compact size */
     }
 }
-
 
 
 /* Status bar styles */
