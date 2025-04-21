@@ -14,7 +14,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-0136\9
+0144
 	
 <style>
   /* Background adjusted to Tailwind gray-400 similar to button row */
@@ -132,12 +132,12 @@
     text-align: center; /* Center logo */
   }
 
-	.logo-cell img {
-  height: 24px !important; /* Sets a constant height of 24 pixels for the logo */
-  width: auto !important; /* Allows the width to adjust proportionally based on the height */
-  object-fit: cover !important; /* Ensures the image covers the area, cropping if necessary to maintain aspect ratio */
-  display: block !important; /* Helps with centering the image within its cell */
-  margin: 0 auto !important; /* Centers the image horizontally within the cell */
+.logo-cell img {
+  height: 24px !important; /* Constant height for logo */
+  width: 31.2px !important; /* Set width to 30% wider than height */
+  object-fit: cover !important; /* Crop if too wide */
+  display: block !important; /* Ensure image is treated as a block for centering */
+  margin: 0 auto !important; /* Center image horizontally */
 }
 
   .country-cell {
