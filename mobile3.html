@@ -1,4 +1,3 @@
-<!-- ---- PART 1 OF 5 ---- -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,134 +16,266 @@
 
 
 <style>
+ <style>
+  /* Background adjusted to Tailwind gray-400 similar to button row */
   body {
-    background-color: #9ca3af;
+    background-color: #e5e7eb; /* Tailwind gray-200 */
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
       "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   }
 
+  /* Make container background same as page bg */
   #layout-container {
-    background-color: #9ca3af;
+    background-color: #e5e7eb; /* Tailwind gray-200 */
     padding: 0.5rem 0.75rem;
     min-height: 100vh;
     box-sizing: border-box;
+    max-width: 1200px; /* Max width for centering */
+    margin: 0 auto; /* Center the container */
   }
 
+  /* Table background to match page bg */
   table {
-    background-color: #d1d5db !important; /* Changed to match header color */
-    border-collapse: separate !important;
-    border-spacing: 0; /* Removed vertical spacing */
+    background-color: #c2c2c2 !important; /* Slightly darker than gray-300 */
+    border-collapse: collapse !important; /* Collapsed borders */
+    border-spacing: 0; /* Removed spacing */
     width: 100%;
     min-width: 700px;
     border-radius: 0.5rem;
     overflow: hidden;
   }
-
   thead tr.sticky-header {
-    background: #d1d5db;
+    background: #d1d5db; /* lighter than bg for contrast */
     position: sticky;
-    top: 4.5rem; /* Reduced height */
+    top: 60px; /* Adjusted top position (statusbar + button row height) */
     z-index: 8;
+    height: 30px; /* Reduced height */
+    box-sizing: border-box;
   }
 
   th, td {
-    padding: 0.1rem 0.2rem; /* Minimal padding */
+    padding: 2px; /* Reduced padding */
     font-size: 12px;
     white-space: nowrap;
+    box-sizing: border-box;
   }
 
   th:first-child, td:first-child {
-    width: 2rem; /* Reduced width */
-    padding-left: 0.2rem;
-    padding-right: 0.2rem;
+    width: 20px; /* Adjusted width for checkbox column */
+    padding: 2px;
+    box-sizing: border-box;
   }
-
+  th:nth-child(2), td:nth-child(2) {
+    width: 1.5rem;
+    text-align: center;
+    padding: 2px;
+    box-sizing: border-box;
+  }
+  th:nth-child(3), td:nth-child(3) {
+    width: 20px; /* Adjusted width for play button column */
+    text-align: center;
+    padding: 2px;
+    box-sizing: border-box;
+  }
   .logo-cell {
-    width: 2rem; /* Reduced width */
+    width: 30px;
+    padding: 2px;
+    box-sizing: border-box;
   }
-
-  .logo-cell img {
-    max-height: 1.8rem; /* Fixed logo height */
-    width: auto;
-    object-fit: contain;
-  }
-
   .country-cell {
-    width: 1.75rem; /* 30% width reduction */
+    width: 1.75rem; /* Reduced width by approx 30% */
     text-align: center;
+    padding: 2px;
+    box-sizing: border-box;
   }
-
   .copy-url-cell {
-    width: 3.5rem; /* Reduced width */
+    width: 4.5rem;
     text-align: center;
+    padding: 2px;
+    box-sizing: border-box;
   }
-
   .name-cell, .group-cell {
-    min-width: 120px; /* Slightly reduced */
-    max-width: 200px; /* Slightly reduced */
+    min-width: unset;
+    max-width: 250px;
+    padding: 2px;
+    box-sizing: border-box;
   }
 
+  /* Smaller paddings for all controls */
+  input[type="checkbox"] {
+    width: 20px; /* Adjusted checkbox size to match play button */
+    height: 20px; /* Adjusted checkbox size to match play button */
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  /* Common button style */
+  button {
+    font-size: 0.8rem;
+    min-height: unset;
+    min-width: unset;
+    padding: 0.2rem 0.5rem;
+    height: 24px; /* Adjusted height */
+    line-height: 1;
+    box-sizing: border-box;
+  }
+
+  /* Status bar styling */
   #status-bar {
     position: sticky;
     top: 0;
     z-index: 10;
     background-color: #d1d5db;
-    padding: 0.2rem 0.5rem; /* Reduced padding */
+    padding: 0.2rem 0.75rem;
     color: black;
-    font-size: 0.7rem; /* Smaller font */
+    font-size: 0.8rem;
     display: flex;
-    flex-wrap: nowrap; /* Prevent wrapping */
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    gap: 0.2rem; /* Reduced gap */
+    gap: 0.3rem;
+    height: 30px; /* Reduced height */
+    box-sizing: border-box;
   }
 
+  /* Button row styling */
   #button-row {
     position: sticky;
-    top: 2rem; /* Reduced top position */
+    top: 30px; /* Adjusted top position */
     z-index: 9;
     background-color: #d1d5db;
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.2rem;
-    padding: 0.2rem 0.5rem; /* Reduced padding */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0.2rem 0.75rem;
+    justify-content: flex-start;
+    align-items: center;
+    height: 30px; /* Reduced height */
+    box-sizing: border-box;
   }
 
-  button {
-    font-size: 0.7rem;
-    min-height: 1.8rem;
-    padding: 0.1rem 0.3rem;
+  /* Container adjustment for smaller viewport */
+  #playlist-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100vw;
   }
 
-  #playlist-table button {
-    min-height: 1.5rem;
-    min-width: 2rem; /* Reduced play button size */
-    padding: 0.1rem 0.2rem;
-    font-size: 0.7rem;
+  /* Popup styles remain the same */
+  #popup-container {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out;
+  }
+  #popup-container.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  #popup-container video {
+    width: 90vw;
+    max-width: 600px;
+    height: auto;
+    border-radius: 0.5rem;
   }
 
+  /* Row highlight classes */
+  .played-permanently {
+    background-color: rgba(128, 0, 128, 0.1) !important;
+  }
+  .selected-row {
+    background-color: rgba(255, 255, 0, 0.3) !important;
+  }
+  .edited {
+    background-color: #c0c0c0 !important;
+  }
+  .editing-row {
+    background-color: rgba(0, 255, 0, 0.2) !important;
+  }
+  #playlist-table-body tr td { vertical-align: middle; }
+  #playlist-table-body tr.selected-row td { background-color: rgba(255, 255, 0, 0.3) !important; }
+  #playlist-table-body tr.edited td { background-color: #c0c0c0 !important; }
+  #playlist-table-body tr.editing-row td { background-color: rgba(0, 255, 0, 0.2) !important; }
+  #playlist-table-body tr.played-permanently td { background-color: rgba(128, 0, 128, 0.1) !important; }
+  td {
+    border-right: 1px solid #d1d5db; /* Add right border to cells */ box-sizing: border-box;
+  }
+  td:last-child {
+    border-right: none; /* Remove right border from last cell */
+    padding-right: 2px; /* Ensure padding on last cell */ box-sizing: border-box;
+  }
+  tbody tr {
+    border-bottom: 1px solid #d1d5db; /* Add bottom border to rows */ box-sizing: border-box;
+  }
+  tbody tr:last-child {
+    border-bottom: none; /* Remove bottom border from last row */
+  }
+
+
+  /* Responsive tweaks */
   @media (max-width: 640px) {
-    #button-row {
-      grid-template-columns: repeat(2, 1fr);
-      grid-template-areas: 
-        "load export"
-        "search group"
-        "selected dupes";
+    #button-row { flex-direction: column; gap: 0.35rem; align-items: stretch; height: auto; }
+    #status-bar { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0.3rem; height: auto; align-items: center; }
+    /* Buttons scaled down about half-width and 30% height less */
+    #button-row button,
+    #status-bar button {
+      min-height: 1.5rem !important;
+      min-width: 1.75rem !important;
+      padding: 0.2rem 0.3rem !important;
+      font-size: 0.8rem !important;
+      flex-grow: unset !important;
+      width: auto !important;
     }
-
-    #load-button { grid-area: load; }
-    #export-m3u-button { grid-area: export; }
-    #search-input { grid-area: search; }
-    #group-filter-input { grid-area: group; }
-    #delete-selected-button { grid-area: selected; }
-    #duplicates-button { grid-area: dupes; }
-    #undo-button { grid-area: undo; }
+    /* Make the last 3 columns slightly narrower on mobile */
+    .logo-cell, .country-cell, .copy-url-cell {
+      width: 2rem !important;
+      display: table-cell; /* ensure visible on mobile as requested */
+    }
+    /* Reduce filter input widths to approx group col size */
+    #search-input {
+      width: 110px !important;
+      min-width: 110px !important;
+    }
+    #group-filter-input {
+      width: 110px !important;
+      min-width: 110px !important;
+    }
+    /* Name column slightly wider (15%) */
+    .name-cell {
+      min-width: 160px !important;
+      max-width: 250px !important;
+    }
+    /* Table font smaller on mobile */
+    table {
+      font-size: 11px;
+    }
+    /* Play button smaller width/height */
+    #playlist-table button {
+      min-height: unset !important;
+      min-width: unset !important;
+      padding: 0.1rem 0.3rem !important;
+      font-size: 0.75rem !important;
+      height: 20px; /* Smaller play button */
+      width: 20px; /* Smaller play button */
+      line-height: 1;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
   }
 </style>
 </head>
 <body>
 
-<!-- ---- PART 4 OF 5 ---- -->
 <div id="layout-container">
 
   <!-- Status Bar -->
@@ -166,19 +297,18 @@
 
   <!-- Button Row -->
   <div id="button-row" class="sticky flex space-x-2 bg-gray-300 p-2 shadow-sm flex-wrap">
-    <input type="file" id="file-input" class="hidden" accept=".m3u,.xlsx" />
-    <button id="load-button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm" aria-label="Load playlist">Load</button>
-    <input type="search" id="search-input" placeholder="Search channel name" aria-label="Search channel name" autocomplete="off" class="shadow border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm" />
-    <input type="text" id="group-filter-input" placeholder="Filter by group" aria-label="Filter by group" autocomplete="off" list="group-suggestions" class="shadow border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm" />
-    <datalist id="group-suggestions"></datalist>
-    <button id="undo-button" class="bg-yellow-500 hover:bg-yellow-700 text-black font-bold py-2 px-4 rounded text-sm" aria-label="Undo last action">Undo</button>
-    <button id="delete-selected-button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm" aria-label="Show selected channels">Selected</button>
-    <button id="cancel-delete" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm hidden" aria-label="Show all channels">Show All</button>
-    <button id="duplicates-button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded text-sm" aria-label="Show duplicate channels">Dupees</button>
-    <button id="export-m3u-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm" aria-label="Export as M3U">Export</button>
-  </div>
-  
-  <!-- ---- PART 5 OF 5 ---- -->
+  <input type="file" id="file-input" class="hidden" accept=".m3u,.xlsx" />
+  <button id="load-button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm" aria-label="Load playlist">Load</button>
+  <button id="export-m3u-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm" aria-label="Export as M3U">Export</button>
+  <input type="search" id="search-input" placeholder="Search channel name" aria-label="Search channel name" autocomplete="off" class="shadow border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm" />
+  <input type="text" id="group-filter-input" placeholder="Filter by group" aria-label="Filter by group" autocomplete="off" list="group-suggestions" class="shadow border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm" />
+  <datalist id="group-suggestions"></datalist>
+  <button id="delete-selected-button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm" aria-label="Show selected channels">Selected</button>
+  <button id="duplicates-button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded text-sm" aria-label="Show duplicate channels">Dupees</button>
+  <button id="undo-button" class="bg-yellow-500 hover:bg-yellow-700 text-black font-bold py-2 px-4 rounded text-sm" aria-label="Undo last action">Undo</button>
+  <button id="cancel-delete" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm hidden" aria-label="Show all channels">Show All</button>
+</div>
+
   <!-- Playlist Table -->
   <div id="playlist-container" class="overflow-x-auto">
     <table id="playlist-table" class="shadow-md rounded w-full">
@@ -213,10 +343,6 @@
     </video>
   </div>
 </div>
-
-
-<!-- ---- PART 6 OF 5 - FULL FUNCTIONALITY---- -->
-
 
 <script>
 
@@ -291,7 +417,7 @@
     document.body.removeChild(a);
   }
 
-  loadButton.addEventListener('click', () => fileInput.click());
+  loadButton.addEventListener('click', () => { showWaitOnUndoButton(); fileInput.click(); });
   m3uToXlsxButton.addEventListener('click', () => convertM3UInput.click());
   xlsxToM3uButton.addEventListener('click', () => convertXLSXInput.click());
 
@@ -338,14 +464,17 @@
         renderTable(visibleChannels);
         populateCountryDropdown();
         updateStatus();
+        resetUndoButton();
       };
       reader.readAsText(file);
     } else if (file.name.endsWith('.xlsx')) {
       alert("XLSX loading to GUI will be implemented later.");
       fileInput.value = "";
+      resetUndoButton();
     } else {
       alert("Please select a valid .m3u file to load.");
       fileInput.value = "";
+      resetUndoButton();
     }
   });
 
@@ -536,18 +665,14 @@
             undoButton.textContent = "WAIT...";
             undoButton.classList.add("bg-black");
             undoButton.classList.remove("bg-yellow-500", "hover:bg-yellow-700");
-            setTimeout(() => {
+           setTimeout(() => {
               const channelToMove = allChannels[originalIndex];
               allChannels.splice(originalIndex, 1);
               allChannels.splice(targetIndex, 0, channelToMove);
               applyFilters();
               renderTable(visibleChannels);
-              setTimeout(() => {
-                undoButton.textContent = "Undo";
-                undoButton.classList.remove("bg-black");
-                undoButton.classList.add("bg-yellow-500", "hover:bg-yellow-700");
-              }, 1000);
-            }, 0);
+              resetUndoButton();
+          }, 0); // Use 0 timeout to allow UI update
           } else if (targetIndex === originalIndex) {
             alert("You entered the current channel number. No change made.");
           } else {
@@ -668,6 +793,7 @@
           channel.edited = true;
           row.classList.add("edited");
           autosave();
+          resetUndoButton(); // Reset button after autosave if it was in WAIT state
         }
       });
       td.appendChild(logoImg);
@@ -693,8 +819,8 @@
           editedChannels++;
           channel.edited = true;
           row.classList.add("edited");
-          autosave();
-          applyFilters();
+autosave();
+          resetUndoButton(); // Reset button after autosave if it was in WAIT state
         }
       });
       td.appendChild(nameInput);
@@ -726,7 +852,11 @@
           applyFilters();
           renderTable(visibleChannels);
           updateStatus();
+applyFilters();
+          renderTable(visibleChannels);
+          updateStatus();
           autosave();
+          resetUndoButton(); // Reset button after autosave if it was in WAIT state
         }
         applyFilters();
       });
@@ -827,37 +957,55 @@
   }
 
 
-  let undoTimeoutId = null;
+ let undoTimeoutId = null;
+  let pendingActions = 0;
+
   function showWaitOnUndoButton() {
+    pendingActions++;
     undoButton.textContent = "WAIT...";
     undoButton.classList.add("bg-black");
     undoButton.classList.remove("bg-yellow-500", "hover:bg-yellow-700");
     if (undoTimeoutId) clearTimeout(undoTimeoutId);
     // Fallback to reset after 10 seconds if process hangs
     undoTimeoutId = setTimeout(() => {
-      resetUndoButton();
+      checkPendingActions();
     }, 10_000);
   }
 
   function resetUndoButton() {
-    undoButton.textContent = "Undo";
-    undoButton.classList.remove("bg-black");
-    undoButton.classList.add("bg-yellow-500", "hover:bg-yellow-700");
-    if (undoTimeoutId) {
-      clearTimeout(undoTimeoutId);
-      undoTimeoutId = null;
+    pendingActions = Math.max(0, pendingActions - 1);
+    if (pendingActions === 0) {
+      undoButton.textContent = "Undo";
+      undoButton.classList.remove("bg-black");
+      undoButton.classList.add("bg-yellow-500", "hover:bg-yellow-700");
+      if (undoTimeoutId) {
+        clearTimeout(undoTimeoutId);
+        undoTimeoutId = null;
+      }
+    }
+  }
+
+  function checkPendingActions() {
+    // This is a fallback. In a real application, you'd check for active processes.
+    // For this simple case, we'll assume if no explicit pending actions, it's safe to reset.
+    if (pendingActions === 0) {
+      resetUndoButton();
+    } else {
+      // If there are still pending actions according to our counter, check again later
+      undoTimeoutId = setTimeout(checkPendingActions, 2000); // Check again in 2 seconds
     }
   }
 
   // Example usage in undo handler and other long actions, replace:
-  // undoButton.textContent = "WAIT..."; undoButton.classList.add("bg-black");
+  // undoButton.textContent = "WAIT...";
+  // undoButton.classList.add("bg-black");
   // With:
   // showWaitOnUndoButton();
 
   // And when action done, call:
   // resetUndoButton();
-
-  // Example modified Undo button handler:
+  
+// Example modified Undo button handler:
   undoButton.addEventListener("click", () => {
     if (history.length > 1) {
       showWaitOnUndoButton();
@@ -869,11 +1017,8 @@
         applyFilters();
         renderTable(visibleChannels);
         updateStatus();
-
-        setTimeout(() => {
-          resetUndoButton();
-        }, 1000);
-      }, 1000);
+        resetUndoButton();
+      }, 0); // Use 0 timeout to allow UI update
     } else {
       alert("No previous state to undo.");
     }
@@ -893,19 +1038,23 @@
     }, 1000);
   }
 
-  duplicatesButton.addEventListener("click", () => {
+ duplicatesButton.addEventListener("click", () => {
     if (!duplicatesActive) {
+      showWaitOnUndoButton();
       const urlCounts = {};
       allChannels.forEach(ch => urlCounts[ch.url] = (urlCounts[ch.url] || 0) + 1);
       visibleChannels = allChannels.filter(ch => urlCounts[ch.url] > 1);
       renderTable(visibleChannels);
       duplicatesButton.textContent = "Show All";
       duplicatesActive = true;
+      resetUndoButton();
     } else {
+      showWaitOnUndoButton();
       visibleChannels = [...allChannels];
       renderTable(visibleChannels);
-      duplicatesButton.textContent = "Dupees";
+      duplicatesButton.textContent = "Dupes"; // Corrected text
       duplicatesActive = false;
+      resetUndoButton();
     }
   });
 
@@ -915,14 +1064,16 @@
     updateStatus();
   });
 
-  searchInput.addEventListener("input", debounce(() => applyFilters(), 300));
-  groupFilterInput.addEventListener("input", debounce(() => applyFilters(), 300));
-  countryFilter.addEventListener("change", () => applyFilters());
+  searchInput.addEventListener("input", debounce(() => { showWaitOnUndoButton(); applyFilters(); resetUndoButton(); }, 300));
+  groupFilterInput.addEventListener("input", debounce(() => { showWaitOnUndoButton(); applyFilters(); resetUndoButton(); }, 300));
+  countryFilter.addEventListener("change", () => { showWaitOnUndoButton(); applyFilters(); resetUndoButton(); });
   
 
   // For "Selected" / "Delete (n)" button text changes:
+ // For "Selected" / "Delete (n)" button text changes:
   deleteSelectedButton.addEventListener("click", () => {
     if (!showingSelectedToDelete) {
+      showWaitOnUndoButton();
       previousFilter = searchInput.value;
       const selectedChannels = allChannels.filter(c => c.selected);
       visibleChannels = selectedChannels;
@@ -932,84 +1083,94 @@
       deleteSelectedButton.textContent = `Delete (${selectedChannels.length})`;
       duplicatesButton.textContent = "Export Selected";
       duplicatesButton.onclick = () => {
+        showWaitOnUndoButton();
         const m3uContent = exportM3UContent(selectedChannels);
         const filename = generateFilename("m3u");
         downloadFile(m3uContent, filename, 'audio/x-mpegurl');
+        resetUndoButton();
       };
       document.getElementById("cancel-delete").classList.remove("hidden");
       showingSelectedToDelete = true;
+      resetUndoButton();
     } else {
       showWaitOnUndoButton();
-      setTimeout(() => {
-        saveState();
-        const selectedVisible = visibleChannels.filter(c => c.selected);
-        deletedChannels.push(...selectedVisible);
-        selectedVisible.forEach(del => {
-          const idx = allChannels.indexOf(del);
-          if (idx > -1) allChannels.splice(idx, 1);
-        });
-        if (previousFilter) {
-          searchInput.value = previousFilter;
-          applyFilters();
-        } else {
-          visibleChannels = [...allChannels];
-          renderTable(visibleChannels);
-          updateGroupSuggestions();
-        }
-        updateStatus();
-        deleteSelectedButton.textContent = "Selected";
-        duplicatesButton.textContent = "Dupees";
-        duplicatesButton.onclick = null;
-        duplicatesButton.addEventListener("click", () => {
+      saveState();
+      const selectedVisible = visibleChannels.filter(c => c.selected);
+      deletedChannels.push(...selectedVisible);
+      selectedVisible.forEach(del => {
+        const idx = allChannels.indexOf(del);
+        if (idx > -1) allChannels.splice(idx, 1);
+      });
+      if (previousFilter) {
+        searchInput.value = previousFilter;
+        applyFilters();
+      } else {
+        visibleChannels = [...allChannels];
+        renderTable(visibleChannels);
+        updateGroupSuggestions();
+      }
+      updateStatus();
+      deleteSelectedButton.textContent = "Selected";
+      duplicatesButton.textContent = "Dupes"; // Corrected text
+      duplicatesButton.onclick = null;
+      duplicatesButton.addEventListener("click", () => { // Re-add original duplicates button listener
           if (!duplicatesActive) {
+            showWaitOnUndoButton();
             const urlCounts = {};
             allChannels.forEach(ch => urlCounts[ch.url] = (urlCounts[ch.url] || 0) + 1);
             visibleChannels = allChannels.filter(ch => urlCounts[ch.url] > 1);
             renderTable(visibleChannels);
             duplicatesButton.textContent = "Show All";
             duplicatesActive = true;
+            resetUndoButton();
           } else {
+            showWaitOnUndoButton();
             visibleChannels = [...allChannels];
             renderTable(visibleChannels);
-            duplicatesButton.textContent = "Dupees";
+            duplicatesButton.textContent = "Dupes"; // Corrected text
             duplicatesActive = false;
+            resetUndoButton();
           }
         });
-        showingSelectedToDelete = false;
-        previousFilter = null;
-        document.getElementById("cancel-delete").classList.add("hidden");
-        resetUndoButton();
-      }, 0);
+      showingSelectedToDelete = false;
+      previousFilter = null;
+      document.getElementById("cancel-delete").classList.add("hidden");
+      resetUndoButton();
     }
   });
-
-  // Cancel delete resets UI text and state
+// Cancel delete resets UI text and state
   document.getElementById("cancel-delete").addEventListener("click", () => {
+    showWaitOnUndoButton();
     visibleChannels = [...allChannels];
     renderTable(visibleChannels);
     updateStatus();
     deleteSelectedButton.textContent = "Selected";
     duplicatesActive = false;
-    duplicatesButton.textContent = "Dupees";
+    duplicatesButton.textContent = "Dupes"; // Corrected text
     duplicatesButton.onclick = null;
-    duplicatesButton.addEventListener("click", () => {
+    duplicatesButton.addEventListener("click", () => { // Re-add original duplicates button listener
       if (!duplicatesActive) {
+        showWaitOnUndoButton();
         const urlCounts = {};
         allChannels.forEach(ch => urlCounts[ch.url] = (urlCounts[ch.url] || 0) + 1);
         visibleChannels = allChannels.filter(ch => urlCounts[ch.url] > 1);
         renderTable(visibleChannels);
         duplicatesButton.textContent = "Show All";
         duplicatesActive = true;
+        resetUndoButton();
       } else {
+        showWaitOnUndoButton();
         visibleChannels = [...allChannels];
         renderTable(visibleChannels);
-        duplicatesButton.textContent = "Dupees";
+        duplicatesButton.textContent = "Dupes"; // Corrected text
         duplicatesActive = false;
+        resetUndoButton();
       }
     });
     showingSelectedToDelete = false;
     previousFilter = null;
     document.getElementById("cancel-delete").classList.add("hidden");
+    resetUndoButton();
   });
 
   // The rest of your JS (renderTable, playback, filters etc) remain unchanged except small integration fixes as noted earlier.
@@ -1042,4 +1203,3 @@
 </script>
 </body>
 </html>
-
