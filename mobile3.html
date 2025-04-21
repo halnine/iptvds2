@@ -14,7 +14,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-0156
+0208
 	
 <style>
   /* Background adjusted to Tailwind gray-400 similar to button row */
@@ -132,12 +132,18 @@ th {
   box-sizing: border-box !important; /* Includes padding and border in dimensions */
 }
 	
-  .logo-cell {
-    width: 30px; /* Keep cell width consistent */
-    padding: 2px !important;
-    box-sizing: border-box;
-    text-align: center; /* Center logo */
-  }
+.logo-cell {
+  width: 30px !important; /* Explicitly set cell width */
+  padding: 2px !important;
+  box-sizing: border-box !important;
+  text-align: center !important; /* Center logo */
+}
+/* Ensure the corresponding header also has a consistent width if needed,
+   but setting on the cell often influences the header width too.
+   If alignment is still off, we might need a rule like:
+   #playlist-table-header th:nth-child(4) { width: 30px !important; }
+   but let's try this first.
+*/
 
 .logo-cell img {
   height: 24px !important; /* Constant height for logo */
@@ -147,12 +153,15 @@ th {
   margin: 0 auto !important; /* Center image horizontally */
 }
 
-  .country-cell {
-    width: 1.3125rem; /* Reduced width by 25% more (1.75 * 0.75) */
-    text-align: center;
-    padding: 2px !important;
-    box-sizing: border-box;
-  }
+.country-cell {
+  width: 1.3125rem !important; /* Keep the previously adjusted width */
+  text-align: center !important;
+  padding: 2px !important;
+  box-sizing: border-box !important;
+}
+ /* Ensure corresponding header is centered (default th is centered, but can add if needed) */
+/* #playlist-table-header th:nth-child(7) { text-align: center !important; } */
+	
    .country-cell select {
         width: 100%; /* Ensure select takes full width of cell */
         box-sizing: border-box;
@@ -172,11 +181,16 @@ th {
     box-sizing: border-box;
   }
   .name-cell, .group-cell {
-    min-width: unset;
-    max-width: 250px;
-    padding: 2px !important;
-    box-sizing: border-box;
-  }
+  min-width: 150px !important; /* Adjusted min-width */
+  max-width: 250px !important; /* Keep max-width */
+  padding: 2px !important;
+  box-sizing: border-box !important;
+  text-align: left !important;
+}
+/* Ensure corresponding header is left-aligned (already added this rule, just confirming) */
+/* #playlist-table-header th:nth-child(5) { text-align: left !important; } */
+
+	
    .name-cell input[type="text"], .group-cell input[type="text"] {
         width: 100%; /* Ensure inputs take full width of their cells */
         box-sizing: border-box;
