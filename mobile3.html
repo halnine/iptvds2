@@ -14,7 +14,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-0144
+0150
 	
 <style>
   /* Background adjusted to Tailwind gray-400 similar to button row */
@@ -35,13 +35,13 @@
   }
 
   /* Sticky Header Block Container */
-  .sticky-header-block {
-    position: sticky;
-    top: 0;
-    z-index: 10; /* Ensure it stays on top */
-    background-color: #d1d5db; /* Match header background */
-    width: 100%; /* Ensure it takes full width */
-  }
+.sticky-header-block {
+  position: sticky; /* Make the container sticky */
+  top: 0; /* Stick it to the top of the viewport */
+  z-index: 10; /* Ensure it stays on top of other scrolling content */
+  background-color: #d1d5db; /* Match header background */
+  width: 100%; /* Ensure it takes full width */
+}
 
   /* Table styling */
   table {
@@ -214,7 +214,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    align-items: center;
+    align-items: left	;
     gap: 0.3rem;
     height: 30px; /* Reduced height */
     box-sizing: border-box;
@@ -236,7 +236,7 @@
     gap: 0.4rem;
     padding: 0.2rem 0.75rem !important; /* Reduced padding */
     justify-content: flex-start;
-    align-items: center;
+    align-items: left;
     height: 30px; /* Reduced height */
     box-sizing: border-box;
   }
