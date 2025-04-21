@@ -73,7 +73,12 @@
     white-space: nowrap;
     box-sizing: border-box;
     border: none !important; /* Remove individual cell borders, will use row/column borders */
+    text-align: left; /* Default text alignment for data cells */
+    vertical-align: middle; /* Vertically align content */
   }
+   th {
+        text-align: center; /* Center header text by default */
+   }
 
   /* Add borders to create grid lines */
    td {
@@ -94,6 +99,7 @@
     width: 20px; /* Adjusted width for checkbox column */
     padding: 2px !important;
     box-sizing: border-box;
+    text-align: center; /* Center checkbox */
   }
   th:nth-child(2), td:nth-child(2) {
     width: 1.5rem;
@@ -111,6 +117,7 @@
     width: 30px; /* Keep cell width consistent */
     padding: 2px !important;
     box-sizing: border-box;
+    text-align: center; /* Center logo */
   }
    .logo-cell img {
       height: 24px; /* Constant height for logo */
@@ -125,6 +132,11 @@
     padding: 2px !important;
     box-sizing: border-box;
   }
+   .country-cell select {
+        width: 100%; /* Ensure select takes full width of cell */
+        box-sizing: border-box;
+   }
+
   .copy-url-cell {
     width: 4.5rem;
     text-align: center;
@@ -137,6 +149,11 @@
     padding: 2px !important;
     box-sizing: border-box;
   }
+   .name-cell input[type="text"], .group-cell input[type="text"] {
+        width: 100%; /* Ensure inputs take full width of their cells */
+        box-sizing: border-box;
+   }
+
 
   /* Smaller paddings for all controls */
   input[type="checkbox"] {
