@@ -14,7 +14,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-0133
+0136
 	
 <style>
   /* Background adjusted to Tailwind gray-400 similar to button row */
@@ -57,9 +57,9 @@
 
   /* Table Header Styling */
 #playlist-table-header th {
-   height: 30px; /* Match header cell height to data cell height */
-   vertical-align: middle; /* Vertically align header content */
-   padding: 2px !important; /* Ensure padding is consistent */
+   height: 30px; /* Matches the height of the data cells */
+   vertical-align: middle; /* Vertically aligns header content */
+   padding: 2px !important; /* Ensures consistent padding */
    box-sizing: border-box;
 }
    #playlist-table-header {
@@ -115,6 +115,14 @@
     padding: 2px !important;
     box-sizing: border-box;
   }
+
+#playlist-table-body-table tbody td {
+  height: 30px; /* Sets a fixed height for all data cells (adjust value as needed for your content) */
+  vertical-align: middle; /* Vertically aligns the content (like text and the logo) to the middle of the cell */
+  padding: 2px !important; /* Ensures the 2px padding is applied, overriding other styles */
+  box-sizing: border-box; /* Includes padding and border in the element's total dimensions */
+}
+	
   .logo-cell {
     width: 30px; /* Keep cell width consistent */
     padding: 2px !important;
@@ -122,11 +130,11 @@
     text-align: center; /* Center logo */
   }
 .logo-cell img {
-  height: 24px; /* Constant height for logo */
-  width: auto; /* Allow width to adjust proportionally */
-  object-fit: cover; /* Crop if too wide while maintaining aspect ratio and height */
-  display: block; /* Ensure image is treated as a block for centering */
-  margin: 0 auto; /* Center image horizontally within the cell */
+  height: 24px; /* Sets a constant height of 24 pixels for the logo */
+  width: auto; /* Allows the width to adjust proportionally based on the height */
+  object-fit: cover; /* Ensures the image covers the area, cropping if necessary to maintain aspect ratio */
+  display: block; /* Helps with centering the image within its cell */
+  margin: 0 auto; /* Centers the image horizontally within the cell */
 }
 
   .country-cell {
