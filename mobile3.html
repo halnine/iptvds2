@@ -14,7 +14,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-0208
+0217
 	
 <style>
   /* Background adjusted to Tailwind gray-400 similar to button row */
@@ -35,61 +35,55 @@
   }
 
   /* Sticky Header Block Container */
-.sticky-header-block {
-  position: sticky; /* Make the container sticky */
-  top: 0; /* Stick it to the top of the viewport */
-  z-index: 10; /* Ensure it stays on top of other scrolling content */
-  background-color: #d1d5db; /* Match header background */
-  width: 100%; /* Ensure it takes full width */
-}
+  .sticky-header-block {
+    position: sticky;
+    top: 0;
+    z-index: 10; /* Ensure it stays on top */
+    background-color: #d1d5db; /* Match header background */
+    width: 100%; /* Ensure it takes full width */
+  }
 
   /* Table styling */
   table {
     background-color: #c2c2c2 !important; /* Slightly darker than gray-300 */
     border-collapse: collapse !important; /* Collapsed borders */
     border-spacing: 0 !important; /* Removed spacing */
-    width: 100%;
-    min-width: 700px; /* Ensure minimum width for horizontal scroll */
+    width: 100%; /* Table takes full width of its container */
+    min-width: 700px; /* Ensure minimum width for horizontal scroll on desktop */
     border-radius: 0.5rem;
     overflow: hidden;
     margin-bottom: 0; /* Remove bottom margin */
+    table-layout: fixed; /* Use fixed layout for consistent column widths */
   }
 
   /* Table Header Styling */
-
-	#playlist-table-header th {
-   height: 30px !important; /* Matches the height of the data cells */
-   vertical-align: middle !important; /* Vertically aligns header content */
-   padding: 2px !important; /* Ensures consistent padding */
-   box-sizing: border-box !important; /* Includes padding and border in dimensions */
-}
-	
+  #playlist-table-header thead tr {
+    background: none !important; /* Remove background */
+    border-bottom: 1px solid #9ca3af !important; /* Add bottom border */
+    height: 30px; /* Reduced height */
+    box-sizing: border-box;
+  }
    #playlist-table-header {
         margin-bottom: 0; /* Remove margin below header table */
         border-bottom-left-radius: 0; /* Adjust border radius */
         border-bottom-right-radius: 0; /* Adjust border radius */
    }
 
-
-/* Ensure Name and Group headers are left-aligned */
-#playlist-table-header th:nth-child(5), /* Name header */
-#playlist-table-header th:nth-child(6) { /* Group header */
-  text-align: left !important;
-}
-	
-th, td {
-  padding: 2px !important;
-  font-size: 12px;
-  white-space: nowrap;
-  box-sizing: border-box;
-  border: none !important;
-  text-align: left; /* Default text alignment for data cells */
-  vertical-align: middle !important; /* Vertically align content */
-}
-th {
-  text-align: center; /* Default text alignment for headers */
-  vertical-align: middle !important; /* Vertically align header content */
-}
+  th, td {
+    padding: 2px !important; /* Reduced padding */
+    font-size: 12px;
+    white-space: nowrap;
+    box-sizing: border-box;
+    border: none !important; /* Remove individual cell borders, will use row/column borders */
+    text-align: left; /* Default text alignment for data cells */
+    vertical-align: middle !important; /* Vertically align content */
+    overflow: hidden; /* Hide content that overflows fixed width */
+    text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+  }
+   th {
+        text-align: center; /* Default text alignment for headers */
+        vertical-align: middle !important; /* Vertically align header content */
+   }
 
   /* Add borders to create grid lines */
    td {
@@ -105,64 +99,26 @@ th {
     border-bottom: none !important; /* Remove bottom border from last row */
    }
 
+    /* Define fixed widths for columns (Desktop) */
+    #playlist-table-header th:nth-child(1), #playlist-table-body-table td:nth-child(1) { width: 20px !important; } /* Checkbox */
+    #playlist-table-header th:nth-child(2), #playlist-table-body-table td:nth-child(2) { width: 25px !important; } /* # */
+    #playlist-table-header th:nth-child(3), #playlist-table-body-table td:nth-child(3) { width: 25px !important; } /* Play */
+    #playlist-table-header th:nth-child(4), #playlist-table-body-table td:nth-child(4) { width: 35px !important; } /* Logo */
+    #playlist-table-header th:nth-child(5), #playlist-table-body-table td:nth-child(5) { width: 220px !important; text-align: left !important; } /* Name */
+    #playlist-table-header th:nth-child(6), #playlist-table-body-table td:nth-child(6) { width: 220px !important; text-align: left !important; } /* Group */
+    #playlist-table-header th:nth-child(7), #playlist-table-body-table td:nth-child(7) { width: 50px !important; text-align: center !important; } /* Country */
+    #playlist-table-header th:nth-child(8), #playlist-table-body-table td:nth-child(8) { width: 130px !important; text-align: center !important; } /* URL */
 
-  th:first-child, td:first-child {
-    width: 20px; /* Adjusted width for checkbox column */
-    padding: 2px !important;
-    box-sizing: border-box;
-    text-align: center; /* Center checkbox */
-  }
-  th:nth-child(2), td:nth-child(2) {
-    width: 1.5rem;
-    text-align: center;
-    padding: 2px !important;
-    box-sizing: border-box;
-  }
-  th:nth-child(3), td:nth-child(3) {
-    width: 20px; /* Adjusted width for play button column */
-    text-align: center;
-    padding: 2px !important;
-    box-sizing: border-box;
-  }
 
-#playlist-table-body-table tbody td {
-  height: 30px !important; /* Sets a fixed height for all data cells */
-  vertical-align: middle !important; /* Vertically aligns the content to the middle */
-  padding: 2px !important; /* Ensures the 2px padding is applied */
-  box-sizing: border-box !important; /* Includes padding and border in dimensions */
-}
-	
-.logo-cell {
-  width: 30px !important; /* Explicitly set cell width */
-  padding: 2px !important;
-  box-sizing: border-box !important;
-  text-align: center !important; /* Center logo */
-}
-/* Ensure the corresponding header also has a consistent width if needed,
-   but setting on the cell often influences the header width too.
-   If alignment is still off, we might need a rule like:
-   #playlist-table-header th:nth-child(4) { width: 30px !important; }
-   but let's try this first.
-*/
+  .logo-cell img {
+      height: 24px !important; /* Constant height for logo */
+      width: auto !important; /* Allow width to adjust */
+      object-fit: cover !important; /* Crop if too wide */
+      display: block !important; /* Ensure image is treated as a block for centering */
+      margin: 0 auto !important; /* Center image horizontally */
+    }
 
-.logo-cell img {
-  height: 24px !important; /* Constant height for logo */
-  width: 31.2px !important; /* Set width to 30% wider than height */
-  object-fit: cover !important; /* Crop if too wide */
-  display: block !important; /* Ensure image is treated as a block for centering */
-  margin: 0 auto !important; /* Center image horizontally */
-}
-
-.country-cell {
-  width: 1.3125rem !important; /* Keep the previously adjusted width */
-  text-align: center !important;
-  padding: 2px !important;
-  box-sizing: border-box !important;
-}
- /* Ensure corresponding header is centered (default th is centered, but can add if needed) */
-/* #playlist-table-header th:nth-child(7) { text-align: center !important; } */
-	
-   .country-cell select {
+  .country-cell select {
         width: 100%; /* Ensure select takes full width of cell */
         box-sizing: border-box;
         display: block; /* Ensure select is treated as a block */
@@ -173,25 +129,7 @@ th {
        width: auto; /* Allow width to be determined by content */
    }
 
-
-  .copy-url-cell {
-    width: 4.5rem;
-    text-align: center;
-    padding: 2px !important;
-    box-sizing: border-box;
-  }
-  .name-cell, .group-cell {
-  min-width: 150px !important; /* Adjusted min-width */
-  max-width: 250px !important; /* Keep max-width */
-  padding: 2px !important;
-  box-sizing: border-box !important;
-  text-align: left !important;
-}
-/* Ensure corresponding header is left-aligned (already added this rule, just confirming) */
-/* #playlist-table-header th:nth-child(5) { text-align: left !important; } */
-
-	
-   .name-cell input[type="text"], .group-cell input[type="text"] {
+  .name-cell input[type="text"], .group-cell input[type="text"] {
         width: 100%; /* Ensure inputs take full width of their cells */
         box-sizing: border-box;
    }
@@ -199,10 +137,10 @@ th {
 
   /* Smaller paddings for all controls */
   input[type="checkbox"] {
-    width: 20px; /* Adjusted checkbox size to match play button */
-    height: 20px; /* Adjusted checkbox size to match play button */
+    width: 20px !important; /* Adjusted checkbox size to match play button */
+    height: 20px !important; /* Adjusted checkbox size to match play button */
     margin: 0 !important; /* Remove default margin */
-    box-sizing: border-box;
+    box-sizing: border-box !important;
   }
 
   /* Common button style */
@@ -219,9 +157,9 @@ th {
     align-items: center; /* Center text vertically */
   }
   input[type="text"], input[type="search"], select {
-    height: 24px; /* Match button height */
+    height: 24px !important; /* Match button height */
     padding: 0.1rem 0.3rem !important; /* Adjust padding */
-    box-sizing: border-box;
+    box-sizing: border-box !important;
   }
 
   /* Status bar styling */
@@ -235,15 +173,15 @@ th {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    align-items: left	;
+    align-items: left;
     gap: 0.3rem;
     height: 30px; /* Reduced height */
     box-sizing: border-box;
   }
    #status-bar button {
-    height: 24px; /* Match other buttons */
+    height: 24px !important; /* Match other buttons */
     padding: 0.2rem 0.5rem !important; /* Match other buttons */
-    box-sizing: border-box;
+    box-sizing: border-sizing !important;
   }
 
 
@@ -340,6 +278,11 @@ th {
 
   /* Responsive tweaks */
   @media (max-width: 640px) {
+     /* Table uses auto width on mobile and min-width handles scroll */
+     table {
+        width: auto;
+     }
+
     /* Status bar buttons - position after text, allow wrap to max 2 lines */
     #status-bar {
       flex-direction: column; /* Stack items vertically */
@@ -381,57 +324,30 @@ th {
       width: auto !important;
       height: 24px; /* Match desktop height */
     }
-    /* Make the last 3 columns slightly narrower on mobile */
-    .logo-cell, .country-cell, .copy-url-cell {
-      width: 2rem !important; /* Adjust width for mobile */
-      display: table-cell; /* ensure visible on mobile as requested */
-    }
-    /* Reduce filter input widths to approx group col size */
-    #search-input,
-    #group-filter-input {
-      width: 110px !important; /* Example width, adjust as needed */
-      min-width: 110px !important;
-      flex-grow: 1; /* Allow inputs to grow */
-    }
-    /* Name and Group columns on mobile - adjust width */
-    .name-cell, .group-cell {
-      min-width: 120px !important; /* Adjusted minimum width for mobile */
-      max-width: 180px !important; /* Adjusted maximum width for mobile */
-    }
-     .name-cell input[type="text"], .group-cell input[type="text"] {
-      max-width: 100% !important; /* Ensure input takes full width of its cell */
-      box-sizing: border-box;
-    }
-    /* Table font smaller on mobile */
-    table {
-      font-size: 11px;
-    }
-    /* Play button smaller width/height */
-    #playlist-table button {
-      min-height: unset !important;
-      min-width: unset !important;
-      padding: 0.1rem 0.3rem !important;
-      font-size: 0.75rem !important;
-      height: 20px; /* Smaller play button */
-      width: 20px; /* Smaller play button */
-      line-height: 1;
-      box-sizing: border-box;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+    /* Define fixed widths for columns (Mobile) */
+    #playlist-table-header th:nth-child(1), #playlist-table-body-table td:nth-child(1) { width: 20px !important; } /* Checkbox */
+    #playlist-table-header th:nth-child(2), #playlist-table-body-table td:nth-child(2) { width: 25px !important; } /* # */
+    #playlist-table-header th:nth-child(3), #playlist-table-body-table td:nth-child(3) { width: 25px !important; } /* Play */
+    #playlist-table-header th:nth-child(4), #playlist-table-body-table td:nth-child(4) { width: 35px !important; } /* Logo */
+    #playlist-table-header th:nth-child(5), #playlist-table-body-table td:nth-child(5) { width: 165px !important; text-align: left !important; } /* Name (Reduced for mobile) */
+    #playlist-table-header th:nth-child(6), #playlist-table-body-table td:nth-child(6) { width: 100px !important; text-align: left !important; } /* Group (Reduced for mobile) */
+    #playlist-table-header th:nth-child(7), #playlist-table-body-table td:nth-child(7) { width: 50px !important; text-align: center !important; } /* Country */
+    #playlist-table-header th:nth-child(8), #playlist-table-body-table td:nth-child(8) { width: 60px !important; text-align: center !important; } /* URL (Adjusted for mobile) */
+
+
      /* Logo size on mobile */
     .logo-cell img {
-      height: 24px; /* Constant height for logo */
-      width: auto; /* Allow width to adjust */
-      object-fit: cover; /* Crop if too wide */
-      box-sizing: border-box;
+      height: 24px !important; /* Constant height for logo */
+      width: auto !important; /* Allow width to adjust */
+      object-fit: cover !important; /* Crop if too wide */
+      display: block !important; /* Ensure image is treated as a block for centering */
+      margin: 0 auto !important; /* Center image horizontally */
     }
-    /* URL button on mobile - slightly wider and darker */
      .copy-url-cell button {
-        width: 3rem !important; /* Adjusted width */
+        width: 100% !important; /* Button takes full width of cell */
         background-color: #4b5563 !important; /* Tailwind gray-600, slightly darker */
      }
+
 
   }
 </style>
