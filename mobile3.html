@@ -53,13 +53,18 @@
     margin-bottom: 0; /* Remove bottom margin */
   }
 
-  thead tr.sticky-header {
-    background: #d1d5db; /* lighter than bg for contrast */
-    /* Position and top handled by .sticky-header-block */
-    z-index: 8;
+  /* Table Header Styling */
+  #playlist-table-header thead tr {
+    background: none !important; /* Remove background */
+    border-bottom: 1px solid #9ca3af !important; /* Add bottom border */
     height: 30px; /* Reduced height */
     box-sizing: border-box;
   }
+   #playlist-table-header {
+        margin-bottom: 0; /* Remove margin below header table */
+        border-bottom-left-radius: 0; /* Adjust border radius */
+        border-bottom-right-radius: 0; /* Adjust border radius */
+   }
 
   th, td {
     padding: 2px !important; /* Reduced padding */
@@ -76,10 +81,10 @@
    td:last-child {
     border-right: none !important; /* Remove right border from last cell */
    }
-   tbody tr {
+   #playlist-table-body-table tbody tr {
     border-bottom: 1px solid #d1d5db !important; /* Add bottom border to rows */
    }
-   tbody tr:last-child {
+   #playlist-table-body-table tbody tr:last-child {
     border-bottom: none !important; /* Remove bottom border from last row */
    }
 
@@ -106,6 +111,13 @@
     padding: 2px !important;
     box-sizing: border-box;
   }
+   .logo-cell img {
+      height: 24px; /* Constant height for logo */
+      width: auto; /* Allow width to adjust */
+      object-fit: cover; /* Crop if too wide */
+      box-sizing: border-box;
+    }
+
   .country-cell {
     width: 1.3125rem; /* Reduced width by 25% more (1.75 * 0.75) */
     text-align: center;
@@ -181,7 +193,7 @@
     z-index: 9;
     background-color: #d1d5db;
     display: flex;
-    flex-direction: row; /* Default to row on desktop */
+    flex-wrap: wrap; /* Allow wrapping on mobile */
     gap: 0.4rem;
     padding: 0.2rem 0.75rem !important; /* Reduced padding */
     justify-content: flex-start;
@@ -189,17 +201,6 @@
     height: 30px; /* Reduced height */
     box-sizing: border-box;
   }
-   #button-row .button-row-mobile-row {
-        display: flex; /* Use flex for internal rows */
-        gap: 0.4rem; /* Match parent gap */
-        align-items: center;
-   }
-    #button-row .button-row-mobile-row button,
-    #button-row .button-row-mobile-row input[type="search"],
-    #button-row .button-row-mobile-row input[type="text"] {
-        flex-grow: 1; /* Allow items to grow */
-        width: auto; /* Adjust width based on flex-grow */
-    }
 
 
   /* Container adjustment for smaller viewport */
@@ -220,6 +221,8 @@
     }
      #playlist-body-container table {
         margin-top: 0; /* Remove margin-top from the table body */
+        border-top-left-radius: 0; /* Adjust border radius */
+        border-top-right-radius: 0; /* Adjust border radius */
     }
 
 
@@ -277,30 +280,24 @@
 
   /* Responsive tweaks */
   @media (max-width: 640px) {
-    #button-row {
-      flex-direction: column; /* Stack items vertically on mobile */
-      height: auto; /* Allow height to adjust */
-      flex-wrap: nowrap; /* Prevent button row wrapping within rows */
-      gap: 0.35rem; /* Adjust gap for column layout */
-    }
-    #button-row .button-row-mobile-row {
-        flex-direction: row; /* Keep internal rows as rows */
-        gap: 0.35rem; /* Adjust gap for internal rows */
-    }
-     #button-row .button-row-mobile-row:nth-child(2) { /* Style for the name/group inputs row */
-        flex-wrap: wrap; /* Allow inputs to wrap if needed */
-     }
-     #button-row .button-row-mobile-row:nth-child(3) { /* Style for selected/dupes/undo row */
-         flex-wrap: wrap; /* Allow buttons to wrap if needed */
-     }
+    /* Status bar buttons - keep in row, allow wrap */
     #status-bar {
       flex-direction: row;
-      flex-wrap: wrap; /* Allow status bar buttons to wrap */
+      flex-wrap: wrap;
       justify-content: center;
       gap: 0.3rem;
       height: auto;
       align-items: center;
     }
+    /* Button row - allow simple wrapping */
+     #button-row {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      height: auto;
+      justify-content: center; /* Center buttons when wrapped */
+     }
+
     /* Buttons scaled down about half-width and 30% height less */
     #button-row button,
     #status-bar button {
@@ -314,23 +311,23 @@
     }
     /* Make the last 3 columns slightly narrower on mobile */
     .logo-cell, .country-cell, .copy-url-cell {
-      width: 2rem !important;
+      width: 2rem !important; /* Adjust width for mobile */
       display: table-cell; /* ensure visible on mobile as requested */
     }
     /* Reduce filter input widths to approx group col size */
     #search-input,
     #group-filter-input {
-      width: 110px !important;
+      width: 110px !important; /* Example width, adjust as needed */
       min-width: 110px !important;
       flex-grow: 1; /* Allow inputs to grow */
     }
     /* Name column slightly wider (15%) */
     .name-cell {
-      min-width: 160px !important;
-      max-width: 250px !important;
+      min-width: 160px !important; /* Adjust minimum width */
+      max-width: 250px !important; /* Adjust maximum width */
     }
      .name-cell input[type="text"], .group-cell input[type="text"] {
-      max-width: 160px; /* Reduced width on mobile approx 35% */
+      max-width: 160px !important; /* Reduced width on mobile approx 35% */
       box-sizing: border-box;
     }
     /* Table font smaller on mobile */
@@ -353,22 +350,23 @@
     }
      /* Logo size on mobile */
     .logo-cell img {
-      height: 24px; /* Match input height */
+      height: 24px; /* Constant height for logo */
       width: auto; /* Allow width to adjust */
       object-fit: cover; /* Crop if too wide */
       box-sizing: border-box;
     }
-     /* Adjust button widths in the last row on mobile */
-     #button-row .button-row-mobile-row:nth-child(3) button {
-        flex-basis: calc(33.33% - 0.3rem); /* Approx one-third width */
-        width: unset !important;
+    /* URL button on mobile - slightly wider and darker */
+     .copy-url-cell button {
+        width: 5rem !important; /* Slightly wider */
+        background-color: #4b5563 !important; /* Tailwind gray-600, slightly darker */
      }
+
   }
 </style>
 </head>
 <body>
 
-<div id="layout-container">
+	<div id="layout-container">
 
   <div class="sticky-header-block">
     <div id="status-bar" class="flex justify-between items-center bg-gray-300 text-black p-2 text-sm flex-wrap gap-2">
@@ -387,28 +385,20 @@
       </div>
     </div>
 
-    <div id="button-row" class="bg-gray-300 p-2 shadow-sm">
+    <div id="button-row" class="bg-gray-300 p-2 shadow-sm flex flex-wrap gap-4 items-center">
       <input type="file" id="file-input" class="hidden" accept=".m3u,.xlsx" />
-      <div class="button-row-mobile-row">
-        <button id="load-button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm" aria-label="Load playlist">Load</button>
-        <button id="export-m3u-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm" aria-label="Export as M3U">Export</button>
-      </div>
-       <div class="button-row-mobile-row">
-        <input type="search" id="search-input" placeholder="Search channel name" aria-label="Search channel name" autocomplete="off" class="shadow border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm" />
-        <input type="text" id="group-filter-input" placeholder="Filter by group" aria-label="Filter by group" autocomplete="off" list="group-suggestions" class="shadow border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm" />
-        <datalist id="group-suggestions"></datalist>
-      </div>
-       <div class="button-row-mobile-row">
-        <button id="delete-selected-button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm" aria-label="Show selected channels">Selected</button>
-        <button id="duplicates-button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded text-sm" aria-label="Show duplicate channels">Dupes</button>
-        <button id="undo-button" class="bg-yellow-500 hover:bg-yellow-700 text-black font-bold py-2 px-4 rounded text-sm" aria-label="Undo last action">Undo</button>
-        <button id="cancel-delete" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm hidden" aria-label="Show all channels">Show All</button>
-      </div>
+      <button id="load-button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm" aria-label="Load playlist">Load</button>
+      <button id="export-m3u-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm" aria-label="Export as M3U">Export</button>
+      <input type="search" id="search-input" placeholder="Search channel name" aria-label="Search channel name" autocomplete="off" class="shadow border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm" />
+      <input type="text" id="group-filter-input" placeholder="Filter by group" aria-label="Filter by group" autocomplete="off" list="group-suggestions" class="shadow border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm" />
+      <datalist id="group-suggestions"></datalist>
+      <button id="delete-selected-button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm" aria-label="Show selected channels">Selected</button>
+      <button id="duplicates-button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded text-sm" aria-label="Show duplicate channels">Dupes</button> <button id="undo-button" class="bg-yellow-500 hover:bg-yellow-700 text-black font-bold py-2 px-4 rounded text-sm" aria-label="Undo last action">Undo</button>
+      <button id="cancel-delete" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm hidden" aria-label="Show all channels">Show All</button>
     </div>
 
-    <div id="table-header-container">
-      <table id="playlist-table" class="shadow-md rounded w-full">
-        <thead class="sticky-header">
+    <table id="playlist-table-header" class="shadow-md rounded w-full">
+        <thead>
           <tr>
             <th><input type="checkbox" id="select-all" aria-label="Select all channels" /></th>
             <th class="cursor-pointer text-center">#</th>
@@ -425,9 +415,7 @@
             <th class="copy-url-cell">URL</th>
           </tr>
         </thead>
-         <tbody id="playlist-table-body"></tbody>
-      </table>
-    </div>
+     </table>
   </div>
 
   <div id="playlist-body-container" class="overflow-x-auto">
