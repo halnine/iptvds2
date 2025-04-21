@@ -15,6 +15,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 
+CSS new
+
 <style>
   /* Background adjusted to Tailwind gray-400 similar to button row */
   body {
@@ -78,6 +80,7 @@
   }
    th {
         text-align: center; /* Center header text by default */
+        vertical-align: middle; /* Vertically align header text */
    }
 
   /* Add borders to create grid lines */
@@ -124,6 +127,8 @@
       width: auto; /* Allow width to adjust */
       object-fit: cover; /* Crop if too wide */
       box-sizing: border-box;
+      display: block; /* Ensure image is treated as a block for centering */
+      margin: 0 auto; /* Center image horizontally */
     }
 
   .country-cell {
@@ -135,7 +140,14 @@
    .country-cell select {
         width: 100%; /* Ensure select takes full width of cell */
         box-sizing: border-box;
+        display: block; /* Ensure select is treated as a block */
+        margin: 0 auto; /* Center select horizontally */
    }
+   .country-cell th select {
+       display: inline-block; /* Keep select in header inline */
+       width: auto; /* Allow width to be determined by content */
+   }
+
 
   .copy-url-cell {
     width: 4.5rem;
@@ -387,7 +399,7 @@
     }
     /* URL button on mobile - slightly wider and darker */
      .copy-url-cell button {
-        width: 3.5rem !important; /* Adjusted width (30% narrower than last attempt) */
+        width: 3rem !important; /* Adjusted width */
         background-color: #4b5563 !important; /* Tailwind gray-600, slightly darker */
      }
 
