@@ -14,15 +14,15 @@
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+
 <style>
-  /* Background adjusted to Tailwind gray-400 similar to button row */
   body {
-    background-color: #9ca3af; /* Tailwind gray-400 */
+    background-color: #9ca3af;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
       "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   }
 
-  /* Make container background same as page bg */
   #layout-container {
     background-color: #9ca3af;
     padding: 0.5rem 0.75rem;
@@ -30,199 +30,115 @@
     box-sizing: border-box;
   }
 
-  /* Table background to match page bg */
   table {
-    background-color: #9ca3af !important;
+    background-color: #d1d5db !important; /* Changed to match header color */
     border-collapse: separate !important;
-    border-spacing: 0 4px;
+    border-spacing: 0; /* Removed vertical spacing */
     width: 100%;
     min-width: 700px;
     border-radius: 0.5rem;
     overflow: hidden;
   }
+
   thead tr.sticky-header {
-    background: #d1d5db; /* lighter than bg for contrast */
+    background: #d1d5db;
     position: sticky;
-    top: 6.5rem;
+    top: 4.5rem; /* Reduced height */
     z-index: 8;
   }
 
   th, td {
-    padding: 0.2rem 0.4rem;
+    padding: 0.1rem 0.2rem; /* Minimal padding */
     font-size: 12px;
     white-space: nowrap;
   }
-  
-  <!-- ---- PART 2 OF 5 ---- -->
+
   th:first-child, td:first-child {
-    width: 2.5rem;
-    padding-left: 0.3rem;
-    padding-right: 0.3rem;
+    width: 2rem; /* Reduced width */
+    padding-left: 0.2rem;
+    padding-right: 0.2rem;
   }
-  th:nth-child(2), td:nth-child(2) {
-    width: 1.5rem;
-    text-align: center;
-  }
-  th:nth-child(3), td:nth-child(3) {
-    width: 2rem;
-    text-align: center;
-  }
+
   .logo-cell {
-    width: 2.5rem;
+    width: 2rem; /* Reduced width */
   }
+
+  .logo-cell img {
+    max-height: 1.8rem; /* Fixed logo height */
+    width: auto;
+    object-fit: contain;
+  }
+
   .country-cell {
-    width: 2.5rem;
+    width: 1.75rem; /* 30% width reduction */
     text-align: center;
   }
+
   .copy-url-cell {
-    width: 4.5rem;
+    width: 3.5rem; /* Reduced width */
     text-align: center;
   }
+
   .name-cell, .group-cell {
-    min-width: 140px;
-    max-width: 220px;
+    min-width: 120px; /* Slightly reduced */
+    max-width: 200px; /* Slightly reduced */
   }
 
-  /* Smaller paddings for all controls */
-  input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    margin: 0;
-  }
-
-  /* Common button style */
-  button {
-    font-size: 0.8rem;
-    min-height: 2rem; /* reduced ~30% from ~2.8rem*/
-    min-width: 3.5rem; /* ~50% smaller on mobile */
-    padding: 0.25rem 0.5rem;
-  }
-
-  /* Status bar styling */
   #status-bar {
     position: sticky;
     top: 0;
     z-index: 10;
     background-color: #d1d5db;
-    padding: 0.35rem 0.75rem;
+    padding: 0.2rem 0.5rem; /* Reduced padding */
     color: black;
-    font-size: 0.8rem;
+    font-size: 0.7rem; /* Smaller font */
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* Prevent wrapping */
     justify-content: space-between;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.2rem; /* Reduced gap */
   }
 
-  /* Button row styling */
   #button-row {
     position: sticky;
-    top: 2.7rem;
+    top: 2rem; /* Reduced top position */
     z-index: 9;
     background-color: #d1d5db;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    padding: 0.3rem 0.75rem;
-    justify-content: flex-start;
-    align-items: center;
-  }
-  
-  <!-- ---- PART 3 OF 5 ---- -->
-  /* Container adjustment for smaller viewport */
-  #playlist-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    max-width: 100vw;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.2rem;
+    padding: 0.2rem 0.5rem; /* Reduced padding */
   }
 
-  /* Popup styles remain the same */
-  #popup-container {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.75);
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition: opacity 0.3s ease-in-out;
-  }
-  #popup-container.visible {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-  }
-  #popup-container video {
-    width: 90vw;
-    max-width: 600px;
-    height: auto;
-    border-radius: 0.5rem;
+  button {
+    font-size: 0.7rem;
+    min-height: 1.8rem;
+    padding: 0.1rem 0.3rem;
   }
 
-  /* Row highlight classes */
-  .played-permanently {
-    background-color: rgba(128, 0, 128, 0.1) !important;
-  }
-  .selected-row {
-    background-color: rgba(255, 255, 0, 0.3) !important;
-  }
-  .edited {
-    background-color: #c0c0c0 !important;
-  }
-  .editing-row {
-    background-color: rgba(0, 255, 0, 0.2) !important;
+  #playlist-table button {
+    min-height: 1.5rem;
+    min-width: 2rem; /* Reduced play button size */
+    padding: 0.1rem 0.2rem;
+    font-size: 0.7rem;
   }
 
-  /* Responsive tweaks */
   @media (max-width: 640px) {
-    #status-bar, #button-row {
-      flex-direction: column;
-      gap: 0.35rem;
-      align-items: stretch;
+    #button-row {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-areas: 
+        "load export"
+        "search group"
+        "selected dupes";
     }
-    /* Buttons scaled down about half-width and 30% height less */
-    #button-row button,
-    #status-bar button {
-      min-height: 1.5rem !important;
-      min-width: 1.75rem !important;
-      padding: 0.2rem 0.3rem !important;
-      font-size: 0.8rem !important;
-      flex-grow: unset !important;
-      width: auto !important;
-    }
-    /* Make the last 3 columns slightly narrower on mobile */
-    .logo-cell, .country-cell, .copy-url-cell {
-      width: 2rem !important;
-      display: table-cell; /* ensure visible on mobile as requested */
-    }
-    /* Reduce filter input widths to approx group col size */
-    #search-input {
-      width: 110px !important; /* about half previous */
-      min-width: 110px !important;
-    }
-    #group-filter-input {
-      width: 110px !important;
-      min-width: 110px !important;
-    }
-    /* Name column slightly wider (15%) */
-    .name-cell {
-      min-width: 160px !important;
-      max-width: 250px !important;
-    }
-    /* Table font smaller on mobile */
-    table {
-      font-size: 11px;
-    }
-    /* Play button smaller width/height */
-    #playlist-table button {
-      min-height: 1.5rem !important;
-      min-width: 1.75rem !important;
-      padding: 0.1rem 0.3rem !important;
-      font-size: 0.75rem !important;
-    }
+
+    #load-button { grid-area: load; }
+    #export-m3u-button { grid-area: export; }
+    #search-input { grid-area: search; }
+    #group-filter-input { grid-area: group; }
+    #delete-selected-button { grid-area: selected; }
+    #duplicates-button { grid-area: dupes; }
+    #undo-button { grid-area: undo; }
   }
 </style>
 </head>
