@@ -16,7 +16,6 @@
 
 
 <style>
- <style>
   /* Background adjusted to Tailwind gray-400 similar to button row */
   body {
     background-color: #e5e7eb; /* Tailwind gray-200 */
@@ -38,7 +37,7 @@
   table {
     background-color: #c2c2c2 !important; /* Slightly darker than gray-300 */
     border-collapse: collapse !important; /* Collapsed borders */
-    border-spacing: 0; /* Removed spacing */
+    border-spacing: 0 !important; /* Removed spacing */
     width: 100%;
     min-width: 700px;
     border-radius: 0.5rem;
@@ -54,7 +53,7 @@
   }
 
   th, td {
-    padding: 2px; /* Reduced padding */
+    padding: 2px !important; /* Reduced padding */
     font-size: 12px;
     white-space: nowrap;
     box-sizing: border-box;
@@ -62,42 +61,42 @@
 
   th:first-child, td:first-child {
     width: 20px; /* Adjusted width for checkbox column */
-    padding: 2px;
+    padding: 2px !important;
     box-sizing: border-box;
   }
   th:nth-child(2), td:nth-child(2) {
     width: 1.5rem;
     text-align: center;
-    padding: 2px;
+    padding: 2px !important;
     box-sizing: border-box;
   }
   th:nth-child(3), td:nth-child(3) {
     width: 20px; /* Adjusted width for play button column */
     text-align: center;
-    padding: 2px;
+    padding: 2px !important;
     box-sizing: border-box;
   }
   .logo-cell {
     width: 30px;
-    padding: 2px;
+    padding: 2px !important;
     box-sizing: border-box;
   }
   .country-cell {
-    width: 1.75rem; /* Reduced width by approx 30% */
+    width: 1.3125rem; /* Reduced width by 25% more (1.75 * 0.75) */
     text-align: center;
-    padding: 2px;
+    padding: 2px !important;
     box-sizing: border-box;
   }
   .copy-url-cell {
     width: 4.5rem;
     text-align: center;
-    padding: 2px;
+    padding: 2px !important;
     box-sizing: border-box;
   }
   .name-cell, .group-cell {
     min-width: unset;
     max-width: 250px;
-    padding: 2px;
+    padding: 2px !important;
     box-sizing: border-box;
   }
 
@@ -118,6 +117,14 @@
     height: 24px; /* Adjusted height */
     line-height: 1;
     box-sizing: border-box;
+    display: flex; /* Use flexbox for centering text */
+    justify-content: center; /* Center text horizontally */
+    align-items: center; /* Center text vertically */
+  }
+  input[type="text"], input[type="search"], select {
+    height: 24px; /* Match button height */
+    padding: 0.1rem 0.3rem !important; /* Adjust padding */
+    box-sizing: border-box;
   }
 
   /* Status bar styling */
@@ -137,11 +144,17 @@
     height: 30px; /* Reduced height */
     box-sizing: border-box;
   }
+   #status-bar button {
+    height: 24px; /* Match other buttons */
+    padding: 0.2rem 0.5rem; /* Match other buttons */
+    box-sizing: border-box;
+  }
+
 
   /* Button row styling */
   #button-row {
     position: sticky;
-    top: 30px; /* Adjusted top position */
+    top: 30px; /* Adjusted top position based on status bar */
     z-index: 9;
     background-color: #d1d5db;
     display: flex;
@@ -159,6 +172,7 @@
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     max-width: 100vw;
+    /* Removed margin-top here as sticky header positioning handles space */
   }
 
   /* Popup styles remain the same */
@@ -210,7 +224,7 @@
   }
   td:last-child {
     border-right: none; /* Remove right border from last cell */
-    padding-right: 2px; /* Ensure padding on last cell */ box-sizing: border-box;
+    padding-right: 2px !important; /* Ensure padding on last cell */ box-sizing: border-box;
   }
   tbody tr {
     border-bottom: 1px solid #d1d5db; /* Add bottom border to rows */ box-sizing: border-box;
@@ -219,20 +233,39 @@
     border-bottom: none; /* Remove bottom border from last row */
   }
 
+  /* Wait button color */
+  .bg-black {
+    background-color: black;
+    color: white !important;
+  }
 
   /* Responsive tweaks */
   @media (max-width: 640px) {
-    #button-row { flex-direction: column; gap: 0.35rem; align-items: stretch; height: auto; }
-    #status-bar { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0.3rem; height: auto; align-items: center; }
+    #button-row {
+      flex-direction: column;
+      gap: 0.35rem;
+      align-items: stretch;
+      height: auto;
+      flex-wrap: nowrap; /* Prevent button row wrapping */
+    }
+    #status-bar {
+      flex-direction: row;
+      flex-wrap: wrap; /* Allow status bar buttons to wrap */
+      justify-content: center;
+      gap: 0.3rem;
+      height: auto;
+      align-items: center;
+    }
     /* Buttons scaled down about half-width and 30% height less */
     #button-row button,
     #status-bar button {
-      min-height: 1.5rem !important;
-      min-width: 1.75rem !important;
+      min-height: unset !important;
+      min-width: unset !important;
       padding: 0.2rem 0.3rem !important;
       font-size: 0.8rem !important;
       flex-grow: unset !important;
       width: auto !important;
+      height: 24px; /* Match desktop height */
     }
     /* Make the last 3 columns slightly narrower on mobile */
     .logo-cell, .country-cell, .copy-url-cell {
@@ -253,6 +286,10 @@
       min-width: 160px !important;
       max-width: 250px !important;
     }
+     .name-cell input[type="text"], .group-cell input[type="text"] {
+      max-width: 160px; /* Reduced width on mobile approx 35% */
+      box-sizing: border-box;
+    }
     /* Table font smaller on mobile */
     table {
       font-size: 11px;
@@ -270,6 +307,13 @@
       display: flex;
       justify-content: center;
       align-items: center;
+    }
+     /* Logo size on mobile */
+    .logo-cell img {
+      height: 24px; /* Match input height */
+      width: 31.2px; /* 30% more than height */
+      object-fit: cover; /* Crop if too wide */
+      box-sizing: border-box;
     }
   }
 </style>
