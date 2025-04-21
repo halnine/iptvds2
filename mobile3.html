@@ -14,7 +14,19 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-0230
+mobile wrapper
+
+	<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IPTV Editor"> <meta name="theme-color" content="#d1d5db"> ```
+
+* `<link rel="manifest" href="/manifest.json">`: This line links to your Web App Manifest file. You'll need to create a file named `manifest.json` in the root directory of your website (or update the `href` if it's elsewhere).
+* `<meta name="apple-mobile-web-app-capable" content="yes">`: This meta tag is specifically for Safari on iOS to make the web application appear in full-screen mode when launched from the home screen.
+* `<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">`: This meta tag for iOS sets the style of the status bar in the standalone full-screen mode.
+* `<meta name="apple-mobile-web-app-title" content="IPTV Editor">`: This sets the title that appears under the icon on the iOS home screen.
+* `<meta name="theme-color" content="#d1d5db">`: This sets the theme color for the browser's address bar and could be used in the PWA's title bar as well.
+	
 	
 <style>
   /* Background adjusted to Tailwind gray-400 similar to button row */
