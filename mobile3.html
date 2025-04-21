@@ -57,12 +57,12 @@ CSS new
   }
 
   /* Table Header Styling */
-  #playlist-table-header thead tr {
-    background: none !important; /* Remove background */
-    border-bottom: 1px solid #9ca3af !important; /* Add bottom border */
-    height: 30px; /* Reduced height */
-    box-sizing: border-box;
-  }
+#playlist-table-header th {
+   height: 30px; /* Match header cell height to data cell height */
+   vertical-align: middle; /* Vertically align header content */
+   padding: 2px !important; /* Ensure padding is consistent */
+   box-sizing: border-box;
+}
    #playlist-table-header {
         margin-bottom: 0; /* Remove margin below header table */
         border-bottom-left-radius: 0; /* Adjust border radius */
@@ -122,14 +122,13 @@ CSS new
     box-sizing: border-box;
     text-align: center; /* Center logo */
   }
-   .logo-cell img {
-      height: 24px; /* Constant height for logo */
-      width: auto; /* Allow width to adjust */
-      object-fit: cover; /* Crop if too wide */
-      box-sizing: border-box;
-      display: block; /* Ensure image is treated as a block for centering */
-      margin: 0 auto; /* Center image horizontally */
-    }
+.logo-cell img {
+  height: 24px; /* Constant height for logo */
+  width: auto; /* Allow width to adjust proportionally */
+  object-fit: cover; /* Crop if too wide while maintaining aspect ratio and height */
+  display: block; /* Ensure image is treated as a block for centering */
+  margin: 0 auto; /* Center image horizontally within the cell */
+}
 
   .country-cell {
     width: 1.3125rem; /* Reduced width by 25% more (1.75 * 0.75) */
